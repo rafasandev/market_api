@@ -22,7 +22,7 @@ public class ServiceOfferingController {
 
     private final ServiceOfferingService serviceOfferingService;
     
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<ServiceOffering> createService(@RequestBody ServiceOfferingForm serviceForm) {
         ServiceOffering service = serviceOfferingService.createService(serviceForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(service);

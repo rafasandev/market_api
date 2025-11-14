@@ -23,7 +23,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
     
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("hasRole('ADMIN_MASTER')")
     public ResponseEntity<Category> createCategory(@RequestBody CategoryForm categoryForm) {
         Category newCategory = categoryService.createCategory(categoryForm);
