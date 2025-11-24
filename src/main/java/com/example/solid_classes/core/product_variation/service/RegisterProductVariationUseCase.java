@@ -10,7 +10,7 @@ import com.example.solid_classes.core.product_variation.dto.ProductVariationResp
 import com.example.solid_classes.core.product_variation.mapper.ProductVariationMapper;
 import com.example.solid_classes.core.product_variation.model.ProductVariation;
 import com.example.solid_classes.core.variation_category.model.VariationCategoryEntity;
-import com.example.solid_classes.core.variation_category.service.variation_global.VariationCategoryService;
+import com.example.solid_classes.core.variation_category.service.variation_global.VariationCategoryGlobalService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ public class RegisterProductVariationUseCase {
     
     private final ProductVariationService productVariationService;
     private final ProductVariationMapper productVariationMapper;
-    private final VariationCategoryService categoryService;
+    private final VariationCategoryGlobalService categoryService;
     private final ProductService productService;
 
     @Transactional

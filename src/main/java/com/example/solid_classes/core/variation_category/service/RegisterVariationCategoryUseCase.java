@@ -3,11 +3,16 @@ package com.example.solid_classes.core.variation_category.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.solid_classes.core.profile.model.company.CompanyProfile;
+import com.example.solid_classes.core.profile.service.company.CompanyProfileService;
 import com.example.solid_classes.core.variation_category.dto.VariationCategoryResponseDto;
 import com.example.solid_classes.core.variation_category.dto.variation_global.VariationCategoryGlobalForm;
+import com.example.solid_classes.core.variation_category.dto.variation_seller.VariationCategorySellerForm;
 import com.example.solid_classes.core.variation_category.mapper.VariationCategoryMapper;
-import com.example.solid_classes.core.variation_category.model.VariationCategoryEntity;
-import com.example.solid_classes.core.variation_category.service.variation_global.VariationCategoryService;
+import com.example.solid_classes.core.variation_category.model.variation_global.VariationCategoryGlobal;
+import com.example.solid_classes.core.variation_category.model.variation_seller.VariationCategorySeller;
+import com.example.solid_classes.core.variation_category.service.variation_global.VariationCategoryGlobalService;
+import com.example.solid_classes.core.variation_category.service.variation_seller.VariationCategorySellerService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,13 +20,25 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterVariationCategoryUseCase {
     
-    private final VariationCategoryService variationCategoryService;
+    private final VariationCategoryGlobalService variationCategoryGlobalService;
+    private final VariationCategorySellerService variationCategorySellerService;
     private final VariationCategoryMapper variationCategoryMapper;
+    private final CompanyProfileService companyProfileService;
 
     @Transactional
     public VariationCategoryResponseDto registerVariationCategory(VariationCategoryGlobalForm variationCategoryForm) {
-        VariationCategoryEntity variationCategory = variationCategoryMapper.toEntity(variationCategoryForm);
-        VariationCategoryEntity savedVariationCategory = variationCategoryService.createVariationCategory(variationCategory);
+        VariationCategoryGlobal variationCategory = variationCategoryMapper.toEntity(variationCategoryForm);
+        VariationCategoryGlobal savedVariationCategory = variationCategoryGlobalService.createVariationCategory(variationCategory);
+        VariationCategoryResponseDto responseDto = variationCategoryMapper.toResponseDto(savedVariationCategory);
+        return responseDto;
+    }
+
+    @Transactional
+    public VariationCategoryResponseDto registerVariationCategory(VariationCategorySellerForm variationCategoryForm) {
+        CompanyProfile company = companyProfileService.getById(variationCategoryForm.getCompanyId());
+
+        VariationCategorySeller variationCategory = variationCategoryMapper.toEntity(variationCategoryForm, company);
+        VariationCategorySeller savedVariationCategory = variationCategorySellerService.createVariationCategory(variationCategory);
         VariationCategoryResponseDto responseDto = variationCategoryMapper.toResponseDto(savedVariationCategory);
         return responseDto;
     }
