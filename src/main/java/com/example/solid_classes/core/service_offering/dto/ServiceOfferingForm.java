@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.service_offering.dto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -20,7 +21,7 @@ public class ServiceOfferingForm {
     
     @NotNull(message = "O preço é obrigatório")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que zero")
-    private Double price;
+    private BigDecimal price;
     
     @NotNull(message = "A categoria é obrigatória")
     private UUID categoryId;

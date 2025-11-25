@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.product.dto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -21,7 +22,7 @@ public class ProductForm {
     
     @NotNull(message = "O preço base é obrigatório")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que zero")
-    private Double priceBase;
+    private BigDecimal priceBase;
     
     @NotNull(message = "A quantidade em estoque é obrigatória")
     @Min(value = 0, message = "A quantidade deve ser maior ou igual a zero")

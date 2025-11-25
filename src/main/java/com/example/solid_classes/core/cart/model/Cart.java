@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.cart.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.solid_classes.common.base.AuditableEntity;
@@ -43,13 +44,13 @@ public class Cart extends AuditableEntity {
         }
     }
 
-    public double calculateTotal() {
+    public BigDecimal calculateTotal() {
         if (this.items == null) {
-            return 0.0;
+            return BigDecimal.ZERO;
         }
         return this.items.stream()
-            .mapToDouble(CartItem::calculateSubtotal)
-            .sum();
+            .map(CartItem::calculateSubtotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public int getTotalItems() {

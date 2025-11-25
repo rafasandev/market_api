@@ -35,7 +35,7 @@ public class CartItem extends AuditableEntity {
     @Column(nullable = false)
     private int productQuantity;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPriceSnapshot;
 
     @Enumerated(EnumType.STRING)

@@ -6,6 +6,7 @@ import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.order.model.Order;
 import com.example.solid_classes.core.product.model.Product;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -22,9 +23,16 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class OrderItem extends AuditableEntity {
 
+    @Column(nullable = false, length = 255)
     private String productName;
+    
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal productPrice;
+    
+    @Column(nullable = false)
     private int productQuantity;
+    
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,7 @@
 package com.example.solid_classes.core.product_variation.model;
 
+import java.math.BigDecimal;
+
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.product.model.Product;
 import com.example.solid_classes.core.product_variation.model.enums.VariationValueType;
@@ -29,8 +31,8 @@ public class ProductVariation extends AuditableEntity {
     @Column(nullable = false)
     private VariationValueType valueType;
     
-    @Column(nullable = false)
-    private double variationAdditionalPrice;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal variationAdditionalPrice;
 
     @Setter
     @Column(nullable = false)
@@ -79,7 +81,7 @@ public class ProductVariation extends AuditableEntity {
         this.available = !this.available;
     }
 
-    public double calculateTotalPrice(Product product) {
-        return product.getPriceBase() + this.variationAdditionalPrice;
+    public BigDecimal calculateTotalPrice(Product product) {
+        return product.getPriceBase().add(this.variationAdditionalPrice);
     }
 }

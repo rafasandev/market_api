@@ -100,7 +100,19 @@ Product product = Product.builder()
 - Examples: `ReservationStatus` in `cart_item/model/enums/`, `RoleName` in `role/model/enums/`
 - Use descriptive enum names and include comments for each value when needed
 
-**Price Snapshot Pattern**: CartItem stores `unitPriceSnapshot` from Product at insertion time to maintain financial consistency even if product prices change later.
+**Monetary Values with BigDecimal**:
+- ALL monetary fields MUST use `BigDecimal` type, never `double` or `Double`
+- Apply `@Column(nullable = false, precision = 10, scale = 2)` for monetary columns
+- Use `BigDecimal` in entities (Product.priceBase, ServiceOffering.price, ProductVariation.variationAdditionalPrice, CartItem.unitPriceSnapshot, Order.orderTotal, OrderItem.productPrice, OrderItem.subtotal)
+- Use `BigDecimal` in Form DTOs with `@DecimalMin` validation
+- Use `BigDecimal` in Response DTOs for consistency
+- ALL arithmetic operations MUST use BigDecimal methods: `.add()`, `.subtract()`, `.multiply()`, `.divide()`
+- Use `BigDecimal.ZERO` instead of `0.0` for zero values
+- For stream operations: use `.map()` and `.reduce(BigDecimal.ZERO, BigDecimal::add)` instead of `.mapToDouble().sum()`
+- Example calculation: `product.getPriceBase().add(variation.getVariationAdditionalPrice())`
+- Example stream sum: `items.stream().map(CartItem::calculateSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add)`
+
+**Price Snapshot Pattern**: CartItem stores `unitPriceSnapshot` (BigDecimal) from Product at insertion time to maintain financial consistency even if product prices change later.
 
 **Entity Constraints**:
 - Always add `nullable = false` for required fields

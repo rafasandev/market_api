@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.product_variation.dto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.example.solid_classes.core.product_variation.model.enums.VariationValueType;
@@ -20,7 +21,7 @@ public class ProductVariationForm {
     
     @NotNull(message = "O preço adicional é obrigatório")
     @DecimalMin(value = "0.0", message = "O preço adicional deve ser maior ou igual a zero")
-    private Double variationAdditionalPrice;
+    private BigDecimal variationAdditionalPrice;
     
     @NotNull(message = "A categoria de variação é obrigatória")
     private UUID variationCategoryId;

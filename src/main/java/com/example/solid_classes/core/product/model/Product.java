@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.product.model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.solid_classes.common.base.AuditableEntity;
@@ -32,8 +33,8 @@ public class Product extends AuditableEntity {
     @Column(length = 2000)
     private String description;
     
-    @Column(nullable = false)
-    private double priceBase;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal priceBase;
     
     @Column(nullable = false)
     private boolean available;

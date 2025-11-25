@@ -1,5 +1,7 @@
 package com.example.solid_classes.core.service_offering.model;
 
+import java.math.BigDecimal;
+
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.category.model.Category;
 import com.example.solid_classes.core.profile.model.company.CompanyProfile;
@@ -27,8 +29,8 @@ public class ServiceOffering extends AuditableEntity {
     @Column(length = 2000)
     private String description;
     
-    @Column(nullable = false)
-    private double price;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
     
     @Column(nullable = false)
     private boolean available;
