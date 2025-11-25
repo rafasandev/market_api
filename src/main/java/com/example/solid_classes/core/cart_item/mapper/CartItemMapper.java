@@ -17,6 +17,7 @@ public class CartItemMapper {
             .cart(cart)
             .productQuantity(cartItemForm.getItemQuantity())
             .unitPriceSnapshot(product.getPriceBase())
+            .status(CartItem.ReservationStatus.PENDING)
             .build();
         return newItem;
     }

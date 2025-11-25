@@ -21,15 +21,24 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class ServiceOffering extends AuditableEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 255)
     private String serviceName;
+    
+    @Column(length = 2000)
+    private String description;
+    
+    @Column(nullable = false)
+    private double price;
+    
+    @Column(nullable = false)
+    private boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id", nullable = false)
     private CompanyProfile company;
 
     public void setCategory(Category category) {
@@ -50,5 +59,9 @@ public class ServiceOffering extends AuditableEntity {
 
         if (company != null)
             company.addService(this);
+    }
+
+    public void toggleAvailability() {
+        this.available = !this.available;
     }
 }

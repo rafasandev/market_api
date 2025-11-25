@@ -1,5 +1,16 @@
 # Copilot Instructions - UniMarket Solid Classes
 
+## Project Context
+
+**UniMarket** is a local e-commerce platform for a university campus. The system manages shopping carts for various vendors and autonomous entrepreneurs within the university, serving as a display window for their products and services - ranging from sweets and crafts to massage services and academic tutoring.
+
+**Key Business Rules:**
+- Payment is NOT processed through the platform - it facilitates connection between seller and buyer
+- Product reservations are managed through the platform with secure data handling
+- Students cannot make mistakes or jokes when reserving products (strict validation required)
+- No delivery system - local pickup only at campus vendor stalls
+- Users must see available product types and variations at physical vendor locations on campus
+
 ## Architecture Overview
 
 This is a **Spring Boot 3.5.7 marketplace application** (uni_market) using **Java 25**, PostgreSQL, and JWT authentication. The codebase follows **Hexagonal Architecture** (Ports & Adapters) with SOLID principles.
@@ -80,18 +91,47 @@ Product product = Product.builder()
 
 **Price Snapshot Pattern**: CartItem stores `unitPriceSnapshot` from Product at insertion time to maintain financial consistency even if product prices change later.
 
+**Entity Constraints**:
+- Always add `nullable = false` for required fields
+- Add `unique = true` for business keys (productName, serviceName, etc.)
+- Specify `length` for String columns to avoid database defaults
+- Use `@Index` for frequently queried columns
+- Use `@UniqueConstraint` to prevent business logic duplicates (e.g., same product in same cart)
+
+**Cascade Operations**:
+- Use `CascadeType.PERSIST` and `CascadeType.MERGE` for parent-child relationships
+- Use `orphanRemoval = true` for strict ownership (e.g., CartItem belongs to Cart)
+- Avoid `CascadeType.ALL` unless truly necessary
+
+**Stock Management**:
+- Products and ProductVariations have `stockQuantity` and `available` fields
+- Always check stock before creating CartItems
+- Use dedicated methods: `decreaseStock()`, `increaseStock()`, `hasStock()`
+- Stock decreases on reservation, increases on cancellation
+
+**Reservation Status Pattern**:
+- CartItem has `ReservationStatus` enum: PENDING, RESERVED, COMPLETED, CANCELLED
+- Items start as PENDING when added to cart
+- Only PENDING items can be modified
+- Use `reserve()`, `complete()`, `cancel()` methods to transition states
+- Check `canModifyQuantity()` before allowing quantity changes
+
 ## Common Tasks
 
 **Adding a New Domain Entity**:
 1. Create entity extending `AuditableEntity` in `core/domain/model/`
-2. Create `DomainPort` interface extending `NamedCrudPort<Domain>`
-3. Create `JpaRepository<Domain, UUID>` in `repository/`
-4. Create `DomainAdapter` extending `NamedCrudAdapter<Domain, DomainRepository>` implementing `DomainPort`
-5. Create `DomainService` with business logic methods using the port
-6. Create DTOs (`DomainForm`, `DomainResponseDto`) in `dto/`
-7. Create `DomainMapper` @Component for conversions
-8. Create `Register[Domain]UseCase` for complex operations with `@Transactional`
-9. Create `DomainController` with REST endpoints
+2. Add appropriate constraints (`@Column(nullable = false)`, `unique = true`, `length`)
+3. Add indexes for foreign keys and frequently queried columns
+4. Initialize collections as `null` (let Hibernate manage them)
+5. Add null checks in all collection manipulation methods
+6. Create `DomainPort` interface extending `NamedCrudPort<Domain>`
+7. Create `JpaRepository<Domain, UUID>` in `repository/`
+8. Create `DomainAdapter` extending `NamedCrudAdapter<Domain, DomainRepository>` implementing `DomainPort`
+9. Create `DomainService` with business logic methods using the port
+10. Create DTOs (`DomainForm`, `DomainResponseDto`) in `dto/`
+11. Create `DomainMapper` @Component for conversions
+12. Create `Register[Domain]UseCase` for complex operations with `@Transactional`
+13. Create `DomainController` with REST endpoints
 
 **Working with Profiles**: When creating/updating profiles, remember:
 - Profiles use User's UUID as their ID via `@MapsId`

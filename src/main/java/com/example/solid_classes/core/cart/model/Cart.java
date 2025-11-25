@@ -6,6 +6,7 @@ import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.cart_item.model.CartItem;
 import com.example.solid_classes.core.profile.model.individual.IndividualProfile;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -24,13 +25,39 @@ import lombok.experimental.SuperBuilder;
 public class Cart extends AuditableEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_id")
+    @JoinColumn(name = "profile_id", nullable = false)
     private IndividualProfile profile;
 
-    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CartItem> items;
 
     public void addCartItem(CartItem cartItem) {
-        this.items.add(cartItem);
+        if (cartItem != null && this.items != null) {
+            this.items.add(cartItem);
+        }
+    }
+
+    public void removeCartItem(CartItem cartItem) {
+        if (cartItem != null && this.items != null) {
+            this.items.remove(cartItem);
+        }
+    }
+
+    public double calculateTotal() {
+        if (this.items == null) {
+            return 0.0;
+        }
+        return this.items.stream()
+            .mapToDouble(CartItem::calculateSubtotal)
+            .sum();
+    }
+
+    public int getTotalItems() {
+        if (this.items == null) {
+            return 0;
+        }
+        return this.items.stream()
+            .mapToInt(CartItem::getProductQuantity)
+            .sum();
     }
 }
