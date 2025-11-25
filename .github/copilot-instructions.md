@@ -20,10 +20,11 @@ This is a **Spring Boot 3.5.7 marketplace application** (uni_market) using **Jav
 **Domain Module Structure**: Each domain (product, cart, user, profile, etc.) in `src/main/java/com/example/solid_classes/core/` follows this consistent layout:
 ```
 domain/
-├── controller/      # REST endpoints
-├── dto/            # Request/Response DTOs
+├── controller/      # REST endpoints with @Valid annotations
+├── dto/            # Request/Response DTOs with validation
 ├── mapper/         # Entity ↔ DTO conversion (Spring @Component)
 ├── model/          # JPA entities extending AuditableEntity
+│   └── enums/      # Domain-specific enums
 ├── ports/          # Interface extending NamedCrudPort<T>
 ├── repository/     # JpaRepository interfaces
 └── service/
@@ -87,7 +88,17 @@ Product product = Product.builder()
 
 **Lazy Loading**: All entity relationships use `fetch = FetchType.LAZY`. Always load required associations explicitly in service layer.
 
-**Validation**: Use Jakarta validation annotations (`@NotNull`, `@NotBlank`, etc.) on DTOs. Validated automatically via `@RequestBody` and handled by `RestExceptionHandler`.
+**Validation**: 
+- Use Jakarta validation annotations (`@NotNull`, `@NotBlank`, `@NotEmpty`, `@Min`, `@DecimalMin`, `@Size`, etc.) on all Form DTOs
+- All controllers must use `@Valid` annotation on `@RequestBody` parameters
+- Validation messages must be in Portuguese and user-friendly
+- Validated automatically via `@Valid @RequestBody` and handled by `RestExceptionHandler`
+- Required fields: Use `@NotNull` for objects/numbers, `@NotBlank` for strings, `@NotEmpty` for strings that shouldn't be whitespace-only
+
+**Enum Organization**:
+- All domain-specific enums must be placed in `model/enums/` directory within each domain
+- Examples: `ReservationStatus` in `cart_item/model/enums/`, `RoleName` in `role/model/enums/`
+- Use descriptive enum names and include comments for each value when needed
 
 **Price Snapshot Pattern**: CartItem stores `unitPriceSnapshot` from Product at insertion time to maintain financial consistency even if product prices change later.
 

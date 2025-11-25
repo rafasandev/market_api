@@ -11,6 +11,7 @@ import com.example.solid_classes.core.service_offering.dto.ServiceOfferingForm;
 import com.example.solid_classes.core.service_offering.dto.ServiceOfferingResponseDto;
 import com.example.solid_classes.core.service_offering.service.RegisterServiceOfferingUseCase;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 
@@ -23,7 +24,7 @@ public class ServiceOfferingController {
 
     
     @PostMapping("")
-    public ResponseEntity<ServiceOfferingResponseDto> createService(@RequestBody ServiceOfferingForm serviceForm) {
+    public ResponseEntity<ServiceOfferingResponseDto> createService(@Valid @RequestBody ServiceOfferingForm serviceForm) {
         ServiceOfferingResponseDto service = serviceOfferingService.registerServiceOffering(serviceForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(service);
     }

@@ -2,6 +2,7 @@ package com.example.solid_classes.core.cart_item.model;
 
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.cart.model.Cart;
+import com.example.solid_classes.core.cart_item.model.enums.ReservationStatus;
 import com.example.solid_classes.core.product.model.Product;
 
 import jakarta.persistence.Column;
@@ -30,13 +31,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class CartItem extends AuditableEntity{
-
-    public enum ReservationStatus {
-        PENDING,      // No carrinho, ainda não reservado
-        RESERVED,     // Produto reservado, aguardando retirada
-        COMPLETED,    // Retirado
-        CANCELLED     // Cancelado
-    }
 
     @Column(nullable = false)
     private int productQuantity;

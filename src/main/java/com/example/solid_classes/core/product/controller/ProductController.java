@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.example.solid_classes.core.product.dto.ProductForm;
 import com.example.solid_classes.core.product.dto.ProductResponseDto;
 import com.example.solid_classes.core.product.service.RegisterProductUseCase;
@@ -21,7 +23,7 @@ public class ProductController {
     private final RegisterProductUseCase productService;
 
     @PostMapping("")
-    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody ProductForm productForm) {
+    public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductForm productForm) {
         ProductResponseDto productResponse = productService.registerProduct(productForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
     }

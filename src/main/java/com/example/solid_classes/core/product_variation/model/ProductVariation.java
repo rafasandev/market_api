@@ -2,7 +2,7 @@ package com.example.solid_classes.core.product_variation.model;
 
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.product.model.Product;
-import com.example.solid_classes.core.product_variation.model.abs.VariationValueType;
+import com.example.solid_classes.core.product_variation.model.enums.VariationValueType;
 import com.example.solid_classes.core.variation_category.model.VariationCategoryEntity;
 
 import jakarta.persistence.Column;

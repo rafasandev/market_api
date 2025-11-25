@@ -6,6 +6,7 @@ import com.example.solid_classes.core.cart.model.Cart;
 import com.example.solid_classes.core.cart_item.dto.CartItemForm;
 import com.example.solid_classes.core.cart_item.dto.CartItemResponseDto;
 import com.example.solid_classes.core.cart_item.model.CartItem;
+import com.example.solid_classes.core.cart_item.model.enums.ReservationStatus;
 import com.example.solid_classes.core.product.model.Product;
 
 @Component
@@ -17,7 +18,7 @@ public class CartItemMapper {
             .cart(cart)
             .productQuantity(cartItemForm.getItemQuantity())
             .unitPriceSnapshot(product.getPriceBase())
-            .status(CartItem.ReservationStatus.PENDING)
+            .status(ReservationStatus.PENDING)
             .build();
         return newItem;
     }

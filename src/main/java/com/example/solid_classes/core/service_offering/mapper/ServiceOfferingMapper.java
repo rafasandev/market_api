@@ -14,6 +14,9 @@ public class ServiceOfferingMapper {
     public ServiceOffering toEntity(ServiceOfferingForm serviceForm, Category category, CompanyProfile company) {
         ServiceOffering service = ServiceOffering.builder()
                 .serviceName(serviceForm.getServiceName())
+                .description(serviceForm.getDescription())
+                .price(serviceForm.getPrice())
+                .available(true)
                 .category(category)
                 .company(company)
                 .build();

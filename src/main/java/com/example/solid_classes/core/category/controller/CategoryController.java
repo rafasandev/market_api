@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.example.solid_classes.core.category.dto.CategoryForm;
 import com.example.solid_classes.core.category.dto.CategoryResponseDto;
 import com.example.solid_classes.core.category.service.RegisterCategoryUseCase;
@@ -24,7 +26,7 @@ public class CategoryController {
     
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN_MASTER')")
-    public ResponseEntity<CategoryResponseDto> createCategory(@RequestBody CategoryForm categoryForm) {
+    public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CategoryForm categoryForm) {
         CategoryResponseDto newCategory = categoryService.registerCategory(categoryForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
     }

@@ -13,6 +13,7 @@ import com.example.solid_classes.core.profile.dto.individual.IndividualProfileFo
 import com.example.solid_classes.core.profile.dto.individual.IndividualProfileResponseDto;
 import com.example.solid_classes.core.profile.service.RegisterProfileUseCase;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,14 +25,14 @@ public class ProfileController {
 
     // Endpoint para registro de perfil individual
     @PostMapping("/individual")
-    public ResponseEntity<IndividualProfileResponseDto> registerIndividualProfile(@RequestBody IndividualProfileForm profileForm) {
+    public ResponseEntity<IndividualProfileResponseDto> registerIndividualProfile(@Valid @RequestBody IndividualProfileForm profileForm) {
         IndividualProfileResponseDto responseDto = registerProfileUseCase.registerIndividual(profileForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     // Endpoint para registro de perfil de empresa
     @PostMapping("/company")
-    public ResponseEntity<CompanyProfileResponseDto> registerCompanyProfile(@RequestBody CompanyProfileForm profileForm) {
+    public ResponseEntity<CompanyProfileResponseDto> registerCompanyProfile(@Valid @RequestBody CompanyProfileForm profileForm) {
         CompanyProfileResponseDto responseDto = registerProfileUseCase.registerCompany(profileForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }

@@ -15,6 +15,9 @@ public class ProductMapper {
         Product product = Product.builder()
                 .productName(productForm.getProductName())
                 .description(productForm.getProductDescription())
+                .priceBase(productForm.getPriceBase())
+                .stockQuantity(productForm.getStockQuantity())
+                .available(productForm.getStockQuantity() > 0)
                 .category(category)
                 .company(company)
                 .build();

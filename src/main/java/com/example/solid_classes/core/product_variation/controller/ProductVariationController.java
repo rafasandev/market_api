@@ -7,6 +7,7 @@ import com.example.solid_classes.core.product_variation.dto.ProductVariationForm
 import com.example.solid_classes.core.product_variation.dto.ProductVariationResponseDto;
 import com.example.solid_classes.core.product_variation.service.RegisterProductVariationUseCase;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class ProductVariationController {
     private final RegisterProductVariationUseCase productVariationService;
 
     @PostMapping
-    public ResponseEntity<ProductVariationResponseDto> createProductVariation(@RequestBody ProductVariationForm variationForm) {
+    public ResponseEntity<ProductVariationResponseDto> createProductVariation(@Valid @RequestBody ProductVariationForm variationForm) {
         ProductVariationResponseDto newVariation = productVariationService.registerProductVariation(variationForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(newVariation);
     }
