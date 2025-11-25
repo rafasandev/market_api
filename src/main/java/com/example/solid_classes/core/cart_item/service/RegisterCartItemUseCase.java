@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.solid_classes.common.exception.UserRuleException;
 import com.example.solid_classes.core.cart.model.Cart;
 import com.example.solid_classes.core.cart.service.CartService;
 import com.example.solid_classes.core.cart_item.dto.CartItemForm;
@@ -33,9 +34,8 @@ public class RegisterCartItemUseCase {
 
         // CORREÇÃO: Validar se produto está disponível
         if (!product.isAvailable()) {
-            throw new com.example.solid_classes.common.exception.UserRuleException(
-                String.format("Produto '%s' não está disponível para venda", product.getProductName())
-            );
+            throw new UserRuleException(
+                    String.format("Produto '%s' não está disponível para venda", product.getProductName()));
         }
 
         Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(cartItemForm.getProductId(), cart.getId());
@@ -44,26 +44,24 @@ public class RegisterCartItemUseCase {
         if (optCart.isPresent()) {
             newItem = optCart.get();
             int newQuantity = newItem.getProductQuantity() + cartItemForm.getItemQuantity();
-            
+
             // CORREÇÃO: Validar estoque antes de adicionar quantidade
             if (!product.hasStock(newQuantity)) {
-                throw new com.example.solid_classes.common.exception.UserRuleException(
-                    String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
-                        product.getProductName(),
-                        product.getStockQuantity(),
-                        newQuantity)
-                );
+                throw new UserRuleException(
+                        String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
+                                product.getProductName(),
+                                product.getStockQuantity(),
+                                newQuantity));
             }
             newItem.addQuantity(cartItemForm.getItemQuantity());
         } else {
             // CORREÇÃO: Validar estoque antes de criar novo item
             if (!product.hasStock(cartItemForm.getItemQuantity())) {
-                throw new com.example.solid_classes.common.exception.UserRuleException(
-                    String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
-                        product.getProductName(),
-                        product.getStockQuantity(),
-                        cartItemForm.getItemQuantity())
-                );
+                throw new UserRuleException(
+                        String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
+                                product.getProductName(),
+                                product.getStockQuantity(),
+                                cartItemForm.getItemQuantity()));
             }
             newItem = cartItemMapper.toEntity(cartItemForm, product, cart);
             newItem.setQuantity(cartItemForm.getItemQuantity());
