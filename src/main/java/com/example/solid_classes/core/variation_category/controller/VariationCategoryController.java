@@ -25,7 +25,7 @@ public class VariationCategoryController {
     private final RegisterVariationCategoryUseCase variationCategoryService;
 
     @PostMapping("/global")
-    @PreAuthorize("hasRole('ADMIN_MASTER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VariationCategoryResponseDto> createGlobalVariationCategory(@Valid @RequestBody VariationCategoryGlobalForm variationForm) {
         VariationCategoryResponseDto variationCategory = variationCategoryService.registerVariationCategory(variationForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(variationCategory);

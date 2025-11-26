@@ -2,6 +2,7 @@ package com.example.solid_classes.core.service_offering.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,7 @@ public class ServiceOfferingController {
     private final RegisterServiceOfferingUseCase serviceOfferingService;
     
     @PostMapping
+    @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ServiceOfferingResponseDto> createService(@Valid @RequestBody ServiceOfferingForm serviceForm) {
         ServiceOfferingResponseDto service = serviceOfferingService.registerServiceOffering(serviceForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(service);

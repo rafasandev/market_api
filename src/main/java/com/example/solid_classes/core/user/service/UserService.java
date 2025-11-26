@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.solid_classes.core.role.model.Role;
 import com.example.solid_classes.core.user.mapper.UserMapper;
+import com.example.solid_classes.common.exception.BusinessRuleException;
+import com.example.solid_classes.core.role.model.enums.RoleName;
 import com.example.solid_classes.core.user.model.User;
 import com.example.solid_classes.core.user.ports.UserPort;
 
@@ -41,6 +43,15 @@ public class UserService {
     }
 
     public User adminSignUp(String email, String password, Set<Role> roles) {
+        if (roles == null || roles.isEmpty()) {
+            throw new BusinessRuleException("Admin user must have ADMIN_MASTER role");
+        }
+
+        boolean allAdmin = roles.stream().allMatch(r -> r.getName() == RoleName.ADMIN_MASTER);
+        if (!allAdmin) {
+            throw new BusinessRuleException("Admin user cannot be created with other roles");
+        }
+
         String passwordEncoded = passwordEncoder.encode(password);
         User user = userMapper.toEntity(email, passwordEncoded, roles);
         return userPort.save(user);

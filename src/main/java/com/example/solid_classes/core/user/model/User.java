@@ -1,6 +1,7 @@
 package com.example.solid_classes.core.user.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -44,9 +45,20 @@ public class User extends AuditableEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles == null
-                ? java.util.Collections.emptyList()
-                : roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name())).toList();
+        if (roles == null) return Collections.emptyList();
+
+        return roles.stream().map(role -> {
+            switch (role.getName()) {
+                case ADMIN_MASTER:
+                    return new SimpleGrantedAuthority("ROLE_ADMIN");
+                case COMPANY:
+                    return new SimpleGrantedAuthority("ROLE_COMPANY");
+                case INDIVIDUAL:
+                    return new SimpleGrantedAuthority("ROLE_INDIVIDUAL");
+                default:
+                    return new SimpleGrantedAuthority("ROLE_" + role.getName().name());
+            }
+        }).toList();
     }
 
     @Override

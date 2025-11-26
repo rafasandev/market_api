@@ -31,7 +31,7 @@ public class CategoryController {
     private final GetCategoryUseCase getCategoryUseCase;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN_MASTER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CategoryForm categoryForm) {
         CategoryResponseDto newCategory = registerCategoryUseCase.registerCategory(categoryForm);
         return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);

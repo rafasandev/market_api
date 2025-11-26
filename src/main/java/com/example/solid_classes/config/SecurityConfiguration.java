@@ -87,11 +87,4 @@ public class SecurityConfiguration {
                 return handler;
         }
 
-        // ===== Web expression handler (para HttpSecurity expressions) =====
-        @Bean
-        public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
-                DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
-                handler.setRoleHierarchy(roleHierarchy);
-                return handler;
-        }
 }
