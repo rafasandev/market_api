@@ -23,4 +23,14 @@ public class VariationCategorySellerAdapter
     public List<VariationCategorySeller> getByCompanyId(UUID companyId) {
         return repository.findByCompanyId(companyId);
     }
+
+    @Override
+    public boolean existsByNameAndCompanyId(String name, UUID companyId) {
+        return repository.existsByNameAndCompanyId(name, companyId);
+    }
+
+    @Override
+    public java.util.Optional<VariationCategorySeller> findByNameAndCompanyId(String name, UUID companyId) {
+        return repository.findByNameAndCompanyId(name, companyId);
+    }
  }

@@ -19,4 +19,14 @@ public class CategoryAdapter extends NamedCrudAdapter<Category, CategoryReposito
     public java.util.List<Category> findByBusinessSector(BusinessSector businessSector) {
         return repository.findByBusinessSector(businessSector);
     }
+
+    @Override
+    public java.util.Optional<Category> findByCategoryName(String categoryName) {
+        return repository.findByCategoryName(categoryName);
+    }
+
+    @Override
+    public boolean existsByCategoryName(String categoryName) {
+        return repository.existsByCategoryName(categoryName);
+    }
 }

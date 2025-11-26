@@ -19,6 +19,7 @@ public class CategoryMapper {
         CategoryResponseDto dto = CategoryResponseDto.builder()
                 .id(category.getId())
                 .name(category.getCategoryName())
+                .businessSector(category.getBusinessSector())
                 .build();
         return dto;
     }

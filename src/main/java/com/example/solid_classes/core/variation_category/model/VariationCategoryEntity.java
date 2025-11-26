@@ -32,7 +32,7 @@ public abstract class VariationCategoryEntity extends AuditableEntity {
     @Column(nullable = false)
     protected VariationType type;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     protected MeasureUnit measureUnit;
 
     @Column(nullable = false)

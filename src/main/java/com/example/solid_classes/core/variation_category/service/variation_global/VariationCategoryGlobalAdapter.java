@@ -15,4 +15,14 @@ public class VariationCategoryGlobalAdapter
     public VariationCategoryGlobalAdapter(VariationCategoryGlobalRepository variationCategoryRepository) {
         super(variationCategoryRepository, "Categoria de Variação Global");
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return repository.existsByName(name);
+    }
+
+    @Override
+    public java.util.Optional<VariationCategoryGlobal> findByName(String name) {
+        return repository.findByName(name);
+    }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.example.solid_classes.common.exception.BusinessRuleException;
 import com.example.solid_classes.core.variation_category.model.variation_seller.VariationCategorySeller;
 import com.example.solid_classes.core.variation_category.ports.VariationCategorySellerPort;
 
@@ -21,6 +22,16 @@ public class VariationCategorySellerService {
     }
 
     public VariationCategorySeller save(VariationCategorySeller variationCategory) {
+        // Prevent duplicate seller-scoped variation names
+        if (variationCategory.getName() != null && variationCategory.getCompany() != null) {
+            UUID companyId = variationCategory.getCompany().getId();
+            if (variationCategorySellerPort.existsByNameAndCompanyId(variationCategory.getName(), companyId)) {
+                throw new BusinessRuleException(
+                    String.format("Variação '%s' já existe para a empresa %s", variationCategory.getName(), companyId)
+                );
+            }
+        }
+
         return variationCategorySellerPort.save(variationCategory);
     }
 

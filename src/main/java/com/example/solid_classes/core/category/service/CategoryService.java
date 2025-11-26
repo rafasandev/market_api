@@ -1,6 +1,7 @@
 package com.example.solid_classes.core.category.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -23,6 +24,15 @@ public class CategoryService {
     }
 
     public Category save(Category category) {
+        Optional<Category> existing = categoryPort.findByCategoryName(category.getCategoryName());
+        if (existing.isPresent()) {
+            if (category.getId() == null || !existing.get().getId().equals(category.getId())) {
+                throw new com.example.solid_classes.common.exception.BusinessRuleException(
+                    String.format("Categoria '%s' já existe", category.getCategoryName())
+                );
+            }
+        }
+
         return categoryPort.save(category);
     }
 
