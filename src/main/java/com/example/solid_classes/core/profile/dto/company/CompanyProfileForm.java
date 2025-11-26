@@ -4,6 +4,7 @@ import com.example.solid_classes.core.profile.model.company.enums.BusinessSector
 import com.example.solid_classes.core.user.dto.UserRegisterForm;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -15,6 +16,7 @@ public class CompanyProfileForm extends UserRegisterForm {
     @NotEmpty(message = "O CNPJ deve ser informado")
     private String cnpj;
 
-    @NotEmpty(message = "O ramo de atividade deve ser informado")
+    // CORREÇÃO: Enum usa @NotNull, não @NotEmpty
+    @NotNull(message = "O ramo de atividade deve ser informado")
     private BusinessSector businessSector;
 }

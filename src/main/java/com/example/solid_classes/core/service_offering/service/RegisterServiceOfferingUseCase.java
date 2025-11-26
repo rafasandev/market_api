@@ -36,6 +36,10 @@ public class RegisterServiceOfferingUseCase {
         if(company.getBusinessSector() != BusinessSector.SERVICE)
             throw new BusinessRuleException("Ramo da empresa apenas permite operações com serviços");
 
+        // CORREÇÃO: Validar compatibilidade entre categoria e tipo de negócio
+        if(category.getBusinessSector() != BusinessSector.SERVICE)
+            throw new BusinessRuleException("Categoria não é compatível com serviços. Use categoria de serviços");
+
         ServiceOffering newService = serviceOfferingMapper.toEntity(serviceForm, category, company);
         ServiceOffering savedService = serviceOfferingService.createService(newService);
         ServiceOfferingResponseDto responseDto = serviceOfferingMapper.toResponseDto(savedService);

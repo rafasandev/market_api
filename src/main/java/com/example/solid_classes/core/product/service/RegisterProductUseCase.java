@@ -36,6 +36,10 @@ public class RegisterProductUseCase {
         if(company.getBusinessSector() != BusinessSector.COMMERCE) 
             throw new BusinessRuleException("Ramo da empresa apenas permite operações com produtos");
 
+        // CORREÇÃO: Validar compatibilidade entre categoria e tipo de negócio
+        if(category.getBusinessSector() != BusinessSector.COMMERCE)
+            throw new BusinessRuleException("Categoria não é compatível com produtos. Use categoria de comércio");
+
         Product newProduct = productMapper.toEntity(productForm, category, company);
         Product savedProduct = productService.createProduct(newProduct);
         ProductResponseDto productResponse = productMapper.toResponseDto(savedProduct);

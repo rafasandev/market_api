@@ -18,6 +18,7 @@ public class ProductVariationMapper {
             .variationCategory(category)
             .product(product)
             .stockQuantity(0)
+            .available(false)  // CORREÇÃO: Iniciar como indisponível quando sem estoque
             .build();
         return newVariation;
     }

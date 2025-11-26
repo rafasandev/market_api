@@ -9,7 +9,13 @@ import com.example.solid_classes.core.product_variation.repository.ProductVariat
 
 @Component
 public class ProductVariationAdapter extends NamedCrudAdapter<ProductVariation, ProductVariationRepository> implements ProductVariationPort {
+    
     public ProductVariationAdapter(ProductVariationRepository repository) {
         super(repository, "Variação de Produto");
+    }
+
+    @Override
+    public java.util.List<ProductVariation> findByProductId(java.util.UUID productId) {
+        return repository.findByProductId(productId);
     }
 }

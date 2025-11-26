@@ -23,4 +23,12 @@ public class CategoryService {
         return categoryPort.save(newCategory);
     }
 
+    public java.util.List<Category> getAllCategories() {
+        return categoryPort.findAll();
+    }
+
+    public java.util.List<Category> getCategoriesByBusinessSector(
+            com.example.solid_classes.core.profile.model.company.enums.BusinessSector businessSector) {
+        return categoryPort.findByBusinessSector(businessSector);
+    }
 }

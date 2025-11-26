@@ -21,4 +21,16 @@ public class CompanyProfileService {
         return companyPort.getById(companyId);
     }
 
+    public CompanyProfile getByCnpj(String cnpj) {
+        return companyPort.getByCnpj(cnpj);
+    }
+
+    public java.util.List<CompanyProfile> getAllCompanies() {
+        return companyPort.findAll();
+    }
+
+    public java.util.List<CompanyProfile> getCompaniesByBusinessSector(
+            com.example.solid_classes.core.profile.model.company.enums.BusinessSector businessSector) {
+        return companyPort.findByBusinessSector(businessSector);
+    }
 }

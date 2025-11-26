@@ -20,5 +20,12 @@ public class ProductVariationService {
     public ProductVariation createProductVariation(ProductVariation newProductVariation) {
         return productVariationPort.save(newProductVariation);
     }
-    
+
+    public java.util.List<ProductVariation> getAllVariations() {
+        return productVariationPort.findAll();
+    }
+
+    public java.util.List<ProductVariation> getVariationsByProductId(java.util.UUID productId) {
+        return productVariationPort.findByProductId(productId);
+    }
 }

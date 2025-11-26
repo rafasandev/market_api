@@ -13,4 +13,14 @@ public class ProductAdapter extends NamedCrudAdapter<Product, ProductRepository>
     public ProductAdapter(ProductRepository productRepository) {
         super(productRepository, "Produto");
     }
+
+    @Override
+    public java.util.List<Product> findByCompanyId(java.util.UUID companyId) {
+        return repository.findByCompanyId(companyId);
+    }
+
+    @Override
+    public java.util.List<Product> findByCategoryId(java.util.UUID categoryId) {
+        return repository.findByCategoryId(categoryId);
+    }
 }

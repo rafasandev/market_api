@@ -20,4 +20,9 @@ public class CompanyProfileAdapter extends NamedCrudAdapter<CompanyProfile, Comp
         return repository.findByCnpj(cnpj).orElseThrow(this::throwEntityNotFound);
     }
 
+    @Override
+    public java.util.List<CompanyProfile> findByBusinessSector(
+            com.example.solid_classes.core.profile.model.company.enums.BusinessSector businessSector) {
+        return repository.findByBusinessSector(businessSector);
+    }
 }

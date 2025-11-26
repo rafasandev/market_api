@@ -14,5 +14,10 @@ public class CategoryAdapter extends NamedCrudAdapter<Category, CategoryReposito
     public CategoryAdapter(CategoryRepository categoryRepository) {
         super(categoryRepository, "Categoria");
     }
-    
+
+    @Override
+    public java.util.List<Category> findByBusinessSector(
+            com.example.solid_classes.core.profile.model.company.enums.BusinessSector businessSector) {
+        return repository.findByBusinessSector(businessSector);
+    }
 }

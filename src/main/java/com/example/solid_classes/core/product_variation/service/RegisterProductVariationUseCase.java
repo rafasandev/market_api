@@ -32,8 +32,8 @@ public class RegisterProductVariationUseCase {
         if (!category.isActive())
             throw new BusinessRuleException("Categoria de variação inativa. Operação falhou");
 
+        // CORREÇÃO: Mapper já inicializa stockQuantity=0 e available=false
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category, product);
-        newVariation.setStockQuantity(0);
 
         ProductVariation savedVariation = productVariationService.createProductVariation(newVariation);
         ProductVariationResponseDto variationResponse = productVariationMapper.toResponseDto(savedVariation);

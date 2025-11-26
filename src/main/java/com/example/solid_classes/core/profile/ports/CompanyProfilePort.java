@@ -1,9 +1,13 @@
 package com.example.solid_classes.core.profile.ports;
 
+import java.util.List;
+
 import com.example.solid_classes.common.ports.NamedCrudPort;
 import com.example.solid_classes.core.profile.model.company.CompanyProfile;
+import com.example.solid_classes.core.profile.model.company.enums.BusinessSector;
 
 public interface CompanyProfilePort extends NamedCrudPort<CompanyProfile>{
     
-    public CompanyProfile getByCnpj(String cnpj);
+    CompanyProfile getByCnpj(String cnpj);
+    List<CompanyProfile> findByBusinessSector(BusinessSector businessSector);
 }
