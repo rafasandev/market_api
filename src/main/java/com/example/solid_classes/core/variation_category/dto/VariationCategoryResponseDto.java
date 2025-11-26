@@ -3,7 +3,8 @@ package com.example.solid_classes.core.variation_category.dto;
 import java.util.UUID;
 
 import lombok.Builder;
-
+import lombok.Getter;
+@Getter
 @Builder
 public class VariationCategoryResponseDto {
     private UUID id;

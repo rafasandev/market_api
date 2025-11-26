@@ -3,7 +3,8 @@ package com.example.solid_classes.core.user.dto;
 import java.util.UUID;
 
 import lombok.Builder;
-
+import lombok.Getter;
+@Getter
 @Builder
 public class UserResponseDto {
     private UUID id;

@@ -5,7 +5,9 @@ import java.util.UUID;
 import com.example.solid_classes.core.profile.model.company.enums.BusinessSector;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 public class CompanyProfileResponseDto {
     private UUID id;
