@@ -22,10 +22,6 @@ import com.example.solid_classes.core.profile.model.company.enums.BusinessSector
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Controller responsável apenas por rotear requisições HTTP.
- * Não contém lógica de negócio ou mapeamento.
- */
 @RestController
 @RequestMapping("/category")
 @RequiredArgsConstructor
@@ -33,13 +29,12 @@ public class CategoryController {
 
     private final RegisterCategoryUseCase registerCategoryUseCase;
     private final GetCategoryUseCase getCategoryUseCase;
-    
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN_MASTER')")
     public ResponseEntity<CategoryResponseDto> createCategory(@Valid @RequestBody CategoryForm categoryForm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            registerCategoryUseCase.registerCategory(categoryForm)
-        );
+        CategoryResponseDto newCategory = registerCategoryUseCase.registerCategory(categoryForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
     }
 
     @GetMapping
@@ -53,7 +48,8 @@ public class CategoryController {
     }
 
     @GetMapping("/sector/{businessSector}")
-    public ResponseEntity<List<CategoryResponseDto>> getCategoriesByBusinessSector(@PathVariable BusinessSector businessSector) {
+    public ResponseEntity<List<CategoryResponseDto>> getCategoriesByBusinessSector(
+            @PathVariable BusinessSector businessSector) {
         return ResponseEntity.ok(getCategoryUseCase.getCategoriesByBusinessSector(businessSector));
     }
 }

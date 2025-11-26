@@ -10,16 +10,12 @@ import com.example.solid_classes.core.profile.ports.IndividualProfilePort;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class IndividualProfileService {
     
     private final IndividualProfilePort individualProfilePort;
 
-    // Métodos CRUD - delegam para o Port
     public IndividualProfile getById(UUID profileId) {
         return individualProfilePort.getById(profileId);
     }

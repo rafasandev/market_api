@@ -23,10 +23,6 @@ import com.example.solid_classes.core.profile.service.company.GetCompanyProfileU
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Controller responsável apenas por rotear requisições HTTP.
- * Não contém lógica de negócio ou mapeamento.
- */
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor
@@ -37,16 +33,14 @@ public class ProfileController {
 
     @PostMapping("/individual")
     public ResponseEntity<IndividualProfileResponseDto> registerIndividualProfile(@Valid @RequestBody IndividualProfileForm profileForm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            registerProfileUseCase.registerIndividual(profileForm)
-        );
+        IndividualProfileResponseDto newClient = registerProfileUseCase.registerIndividual(profileForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newClient);
     }
 
     @PostMapping("/company")
     public ResponseEntity<CompanyProfileResponseDto> registerCompanyProfile(@Valid @RequestBody CompanyProfileForm profileForm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            registerProfileUseCase.registerCompany(profileForm)
-        );
+        CompanyProfileResponseDto newSeller = registerProfileUseCase.registerCompany(profileForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newSeller);
     }
 
     @GetMapping("/company")

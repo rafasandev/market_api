@@ -12,16 +12,12 @@ import com.example.solid_classes.core.profile.model.company.enums.BusinessSector
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryPort categoryPort;
 
-    // Métodos CRUD - delegam para o Port
     public Category getById(UUID id) {
         return categoryPort.getById(id);
     }
@@ -38,7 +34,6 @@ public class CategoryService {
         return categoryPort.findByBusinessSector(businessSector);
     }
 
-    // Validações leves
     public void validateBusinessSectorCompatibility(Category category, BusinessSector expectedSector) {
         if (category.getBusinessSector() != expectedSector) {
             throw new BusinessRuleException(

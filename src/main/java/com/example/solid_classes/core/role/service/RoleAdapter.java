@@ -12,7 +12,7 @@ import com.example.solid_classes.core.role.repository.RoleRepository;
 public class RoleAdapter extends NamedCrudAdapter<Role, RoleRepository> implements RolePort {
 
     public RoleAdapter(RoleRepository roleRepository) {
-        super(roleRepository, "Função");
+        super(roleRepository, "Função | Cargo");
     }
 
     @Override

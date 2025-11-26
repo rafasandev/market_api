@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.solid_classes.common.exception.UserRuleException;
 import com.example.solid_classes.core.cart.model.Cart;
 import com.example.solid_classes.core.cart.service.CartService;
 import com.example.solid_classes.core.cart_item.dto.CartItemForm;
@@ -28,14 +27,10 @@ public class RegisterCartItemUseCase {
 
     @Transactional
     public CartItemResponseDto registerCartItem(CartItemForm cartItemForm) {
-        // Buscar dependências via Services
         Cart cart = cartService.getCartByProfileId(cartItemForm.getUserId());
         Product product = productService.getById(cartItemForm.getProductId());
 
-        // Validar disponibilidade
         productService.validateAvailability(product);
-
-        // Verificar se item já existe no carrinho
         Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(
             cartItemForm.getProductId(), 
             cart.getId()
@@ -44,24 +39,18 @@ public class RegisterCartItemUseCase {
         CartItem newItem;
 
         if (optCart.isPresent()) {
-            // Item já existe - atualizar quantidade
             newItem = optCart.get();
             int newQuantity = newItem.getProductQuantity() + cartItemForm.getItemQuantity();
 
-            // Validar estoque
             productService.validateStock(product, newQuantity);
             newItem.addQuantity(cartItemForm.getItemQuantity());
         } else {
-            // Novo item - validar estoque e criar
             productService.validateStock(product, cartItemForm.getItemQuantity());
             
             newItem = cartItemMapper.toEntity(cartItemForm, product, cart);
             newItem.setQuantity(cartItemForm.getItemQuantity());
         }
-
-        // Persistir via Service
         CartItem savedItem = cartItemService.save(newItem);
-        
         return cartItemMapper.toResponseDto(savedItem);
     }
 }

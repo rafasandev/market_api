@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterCartUseCase {
 
-    // CORREÇÃO: Adicionar final para injeção correta pelo @RequiredArgsConstructor
     private final CartService cartService;
     private final IndividualProfileService individualProfileService;
     private final CartMapper cartMapper;

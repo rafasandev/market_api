@@ -11,16 +11,12 @@ import com.example.solid_classes.core.product_variation.ports.ProductVariationPo
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class ProductVariationService {
 
     private final ProductVariationPort productVariationPort;
 
-    // Métodos CRUD - delegam para o Port
     public ProductVariation getById(UUID id) {
         return productVariationPort.getById(id);
     }
@@ -37,7 +33,6 @@ public class ProductVariationService {
         return productVariationPort.findByProductId(productId);
     }
 
-    // Validações leves
     public void validateStock(ProductVariation variation, int requestedQuantity) {
         if (!variation.hasStock(requestedQuantity)) {
             throw new BusinessRuleException(

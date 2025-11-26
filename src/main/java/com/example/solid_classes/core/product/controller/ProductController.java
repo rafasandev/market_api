@@ -20,10 +20,6 @@ import com.example.solid_classes.core.product.service.RegisterProductUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Controller responsável apenas por rotear requisições HTTP.
- * Não contém lógica de negócio ou mapeamento.
- */
 @RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
@@ -34,9 +30,8 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductForm productForm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            registerProductUseCase.registerProduct(productForm)
-        );
+        ProductResponseDto newProduct = registerProductUseCase.registerProduct(productForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
     @GetMapping

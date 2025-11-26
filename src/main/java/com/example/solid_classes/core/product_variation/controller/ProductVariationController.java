@@ -20,10 +20,6 @@ import com.example.solid_classes.core.product_variation.service.RegisterProductV
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Controller responsável apenas por rotear requisições HTTP.
- * Não contém lógica de negócio ou mapeamento.
- */
 @RestController
 @RequestMapping("/product-variation")
 @RequiredArgsConstructor
@@ -34,9 +30,8 @@ public class ProductVariationController {
 
     @PostMapping
     public ResponseEntity<ProductVariationResponseDto> createProductVariation(@Valid @RequestBody ProductVariationForm variationForm) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            registerProductVariationUseCase.registerProductVariation(variationForm)
-        );
+        ProductVariationResponseDto newProductVariation = registerProductVariationUseCase.registerProductVariation(variationForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProductVariation);
     }
 
     @GetMapping

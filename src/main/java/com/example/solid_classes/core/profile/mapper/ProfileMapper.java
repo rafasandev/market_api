@@ -21,13 +21,13 @@ public class ProfileMapper {
                 .businessSector(profileForm.getBusinessSector())
                 .active(true)
                 .build();
-                return companyProfile;
+        return companyProfile;
     }
-    
+
     public IndividualProfile toEntity(IndividualProfileForm profileForm, User user) {
-        
+
         IndividualProfile individualProfile = IndividualProfile.builder()
-        .user(user)
+                .user(user)
                 .name(profileForm.getName())
                 .cpf(profileForm.getCpf())
                 .active(true)

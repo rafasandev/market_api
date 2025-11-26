@@ -36,31 +36,21 @@ public class RegisterProfileUseCase {
 
     @Transactional
     public IndividualProfileResponseDto registerIndividual(IndividualProfileForm individualForm) {
-        // Buscar role via Service
         Role individualRole = roleService.getByRoleName(RoleName.INDIVIDUAL);
-        
-        // Criar usuário via Service
         User user = userService.signUp(individualForm.getEmail(), individualForm.getPassword(), Set.of(individualRole));
 
-        // Criar e persistir perfil via Service
         IndividualProfile newProfile = profileMapper.toEntity(individualForm, user);
         IndividualProfile savedProfile = individualProfileService.save(newProfile);
         
-        // Criar carrinho via UseCase
         registerCartUseCase.createCartOnProfileCreation(savedProfile);
-        
         return profileMapper.toResponseDto(savedProfile);
     }
 
     @Transactional
     public CompanyProfileResponseDto registerCompany(CompanyProfileForm companyForm) {
-        // Buscar role via Service
         Role companyRole = roleService.getByRoleName(RoleName.COMPANY);
-        
-        // Criar usuário via Service
         User user = userService.signUp(companyForm.getEmail(), companyForm.getPassword(), Set.of(companyRole));
-
-        // Criar e persistir perfil via Service
+        
         CompanyProfile newProfile = profileMapper.toEntity(companyForm, user);
         CompanyProfile savedProfile = companyProfileService.save(newProfile);
         

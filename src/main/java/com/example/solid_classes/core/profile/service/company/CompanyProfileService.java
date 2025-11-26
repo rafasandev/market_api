@@ -12,16 +12,12 @@ import com.example.solid_classes.core.profile.ports.CompanyProfilePort;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class CompanyProfileService {
 
     private final CompanyProfilePort companyProfilePort;
 
-    // Métodos CRUD - delegam para o Port
     public CompanyProfile getById(UUID id) {
         return companyProfilePort.getById(id);
     }
@@ -42,23 +38,21 @@ public class CompanyProfileService {
         return companyProfilePort.findByBusinessSector(businessSector);
     }
 
-    // Validações leves
     public void validateIsActive(CompanyProfile company) {
         if (!company.isActive()) {
             throw new BusinessRuleException(
-                String.format("Empresa '%s' está inativa. Operação negada", company.getCompanyName())
-            );
+                    String.format("Empresa '%s' está inativa. Operação negada",
+                            company.getCompanyName()));
         }
     }
 
     public void validateBusinessSector(CompanyProfile company, BusinessSector expectedSector) {
         if (company.getBusinessSector() != expectedSector) {
             throw new BusinessRuleException(
-                String.format("Empresa '%s' opera no setor %s, mas a operação requer setor %s",
-                    company.getCompanyName(),
-                    company.getBusinessSector(),
-                    expectedSector)
-            );
+                    String.format("Empresa '%s' opera no setor %s, mas a operação requer setor %s",
+                            company.getCompanyName(),
+                            company.getBusinessSector(),
+                            expectedSector));
         }
     }
 }

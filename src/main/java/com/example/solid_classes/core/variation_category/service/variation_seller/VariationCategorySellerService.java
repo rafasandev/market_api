@@ -10,16 +10,12 @@ import com.example.solid_classes.core.variation_category.ports.VariationCategory
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class VariationCategorySellerService {
     
     private final VariationCategorySellerPort variationCategorySellerPort;
 
-    // Métodos CRUD - delegam para o Port
     public VariationCategorySeller getById(UUID id) {
         return variationCategorySellerPort.getById(id);
     }

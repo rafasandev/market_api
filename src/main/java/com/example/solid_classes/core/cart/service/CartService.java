@@ -10,16 +10,12 @@ import com.example.solid_classes.core.cart.ports.CartPort;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class CartService {
     
     private final CartPort cartPort;
 
-    // Métodos CRUD - delegam para o Port
     public Cart getById(UUID id) {
         return cartPort.getById(id);
     }
@@ -36,7 +32,6 @@ public class CartService {
         return cartPort.findAll();
     }
 
-    // Método auxiliar
     public void clearCart(Cart cart) {
         if (cart.getItems() != null) {
             cart.getItems().clear();

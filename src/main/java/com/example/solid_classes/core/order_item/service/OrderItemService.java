@@ -10,16 +10,12 @@ import com.example.solid_classes.core.order_item.ports.OrderItemPort;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Service que encapsula o Port e adiciona validações leves.
- */
 @Service
 @RequiredArgsConstructor
 public class OrderItemService {
     
     private final OrderItemPort orderItemPort;
 
-    // Métodos CRUD - delegam para o Port
     public OrderItem getById(UUID id) {
         return orderItemPort.getById(id);
     }

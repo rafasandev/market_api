@@ -26,16 +26,12 @@ public class RegisterProductVariationUseCase {
 
     @Transactional
     public ProductVariationResponseDto registerProductVariation(ProductVariationForm variationForm) {
-        // Buscar dependências via Services
         VariationCategoryEntity category = variationCategoryGlobalService.getById(variationForm.getVariationCategoryId());
         Product product = productService.getById(variationForm.getProductId());
 
-        // Validação de categoria ativa
         if (!category.isActive()) {
             throw new BusinessRuleException("Categoria de variação inativa. Operação falhou");
         }
-
-        // Criar e persistir via Service
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category, product);
         ProductVariation savedVariation = productVariationService.save(newVariation);
         

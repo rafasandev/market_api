@@ -60,7 +60,4 @@ public class Category extends AuditableEntity {
         if (service != null && this.services != null && this.services.contains(service))
             this.services.remove(service);
     }
-
-
-
 }

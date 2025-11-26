@@ -12,10 +12,6 @@ import com.example.solid_classes.core.product_variation.model.ProductVariation;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * UseCase para operações de consulta de variações de produtos.
- * Responsável por buscar variações via Service e convertê-las em DTOs.
- */
 @Service
 @RequiredArgsConstructor
 public class GetProductVariationUseCase {

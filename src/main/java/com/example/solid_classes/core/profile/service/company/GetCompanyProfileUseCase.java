@@ -13,10 +13,6 @@ import com.example.solid_classes.core.profile.model.company.enums.BusinessSector
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * UseCase para operações de consulta de perfis de empresa.
- * Responsável por buscar empresas via Service e convertê-las em DTOs.
- */
 @Service
 @RequiredArgsConstructor
 public class GetCompanyProfileUseCase {

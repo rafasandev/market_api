@@ -47,6 +47,60 @@ Both share `@MapsId` relationship with User entity.
 
 **Bidirectional Relationship Management**: Entities like `Product`, `Category`, `CompanyProfile` implement explicit add/remove methods to maintain both sides of relationships (e.g., `Product.setCategory()` updates both product.category and category's product list).
 
+**Padrão Arquitetural (Regras a Seguir)**
+Para garantir consistência em toda a base de código, siga este padrão rigoroso ao adicionar domínios, entidades e casos de uso. Use estes nomes, responsabilidades e localizações de arquivo como contrato para revisões de código e PRs.
+
+- **Estrutura de diretórios por domínio:**
+    - `core/<domain>/controller` — controladores REST, mapeamento de endpoints e uso de `@Valid` em `@RequestBody`.
+    - `core/<domain>/dto` — `*Form` (entrada), `*ResponseDto` (saída). Mensagens de validação em Português.
+    - `core/<domain>/mapper` — `@Component` que converte `Form` ↔ `Entity` ↔ `ResponseDto` (não usar MapStruct).
+    - `core/<domain>/model` — JPA entities que estendem `AuditableEntity` ou `ProfileEntity` quando aplicável.
+    - `core/<domain>/ports` — interfaces `*Port` que estendem `NamedCrudPort<T>` (contrato da camada de domínio).
+    - `core/<domain>/repository` — `JpaRepository<T, UUID>` para persistência.
+    - `core/<domain>/service` — `*Service` para validações leves e orquestração local (delegam persistência ao Port).
+    - `core/<domain>/service/Register*UseCase.java` — caso de uso transacional para operações complexas envolvendo múltiplos serviços/adapters.
+
+- **Nomenclatura e arquivos de classe (padrão):**
+    - Port: `DomainPort` (ex.: `ProductPort`)
+    - Adapter: `DomainAdapter` (ex.: `ProductAdapter`) que estende `NamedCrudAdapter<Entity, Repository>` e implementa `DomainPort`
+    - Service: `DomainService` (ex.: `ProductService`) — contém validações de negócio e métodos reutilizáveis entre UseCases
+    - UseCase: `RegisterDomainUseCase` — método público `execute(...)` anotado com `@Transactional` para coordenar operações que afetam múltiplos domínios
+    - Mapper: `DomainMapper` — `toEntity(Form, deps...)` e `toResponseDto(Entity)`
+    - DTOs: `DomainForm`, `DomainResponseDto`
+
+- **Entidades e JPA:**
+    - Todas as entidades persistentes devem estender `AuditableEntity` (exceto `ProfileEntity` e suas subtipo quando aplicável).
+    - Use `@SuperBuilder`, `@Getter` e `@NoArgsConstructor`; evite `@Setter` e `@Data`.
+    - Não inicialize coleções no campo (deixe o Hibernate instanciar), sempre verificar `null` nas helpers.
+    - Relações: `fetch = FetchType.LAZY`; carregue explicitamente nas services quando necessário.
+    - Colunas monetárias: `BigDecimal` com `@Column(precision = 10, scale = 2, nullable = false)`.
+    - Use métodos de conveniência para manter a consistência bidirecional (add/remove/set que atualizam ambos os lados).
+
+- **Persistência / Adapters:**
+    - Adapters implementam portas e encapsulam acesso a `JpaRepository`.
+    - `NamedCrudAdapter` fornece implementação comum; sempre passe `entityName` para mensagens amigáveis (ex.: "Produto não encontrado(a)").
+    - Evite lógica de negócio nas adapters — elas são adaptadores de infraestrutura.
+
+- **Services e UseCases:**
+    - `*Service` contém validações reutilizáveis e lógica leve que não exige transação distribuída.
+    - Crie classes de UseCase para operações transacionais e para outras responsabilidades do domínio — não apenas para operações de "registro"/criação. UseCases servem para isolar e orquestrar fluxos de negócio e para manter cada unidade de lógica com responsabilidade única.
+        - Exemplos de UseCases além de `Register*UseCase`:
+            - `GetOrderUseCase` — carregamento de pedidos com associações e regras de visibilidade/escopo.
+            - `CheckoutOrderUseCase` — fluxo transacional para finalizar um pedido (decremento de estoque, criação de OrderItems, mudança de status, notificações).
+            - `CancelOrderUseCase`, `UpdateCartItemQuantityUseCase`, `CalculateCartTotalsUseCase`, etc.
+    - Cada UseCase deve ter uma única responsabilidade: orquestrar o fluxo do caso de uso, delegar validações para `*Service` e persistência para `*Port`/Adapter, e retornar DTOs. Anote o método de entrada com `@Transactional` quando o fluxo modificar múltiplos agregados ou persistir mudanças em mais de uma dependência.
+    - Testar UseCases com testes de integração que carreguem contexto mínimo do Spring (ou testes slice quando aplicável). Preferir testes que validem o fluxo completo do caso de uso.
+
+- **Validações e Mensagens:**
+    - Todas as validações em DTOs devem usar anotações Jakarta com mensagens em Português.
+    - Erros de negócio lançam `BusinessRuleException` (ou exceções específicas) tratadas por `RestExceptionHandler`.
+
+- **Boas práticas de versão e commit:**
+    - Prefira PRs pequenos e focados; inclua uma breve descrição do impacto no modelo de dados.
+    - Use mensagens de commit com prefixos (`feat:`, `fix:`, `chore:`).
+
+Este padrão serve como contrato de equipe. Revisões de PR devem validar conformidade com estes pontos antes de aceitar mudanças de estrutura ou convenções.
+
 ## Development Environment
 
 **Database**: PostgreSQL on port 5433 via Docker Compose
