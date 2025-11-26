@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.cart_item.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,12 +11,16 @@ import com.example.solid_classes.core.cart_item.ports.CartItemPort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service que encapsula o Port e adiciona validações leves.
+ */
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
 
     private final CartItemPort cartItemPort;
 
+    // Métodos CRUD - delegam para o Port
     public CartItem getById(UUID id) {
         return cartItemPort.getById(id);
     }
@@ -24,7 +29,15 @@ public class CartItemService {
         return cartItemPort.getByProductIdAndCartId(productId, cartId);
     }
 
-    public CartItem createCartItem(CartItem cartItem) {
+    public CartItem save(CartItem cartItem) {
         return cartItemPort.save(cartItem);
+    }
+
+    public List<CartItem> findAll() {
+        return cartItemPort.findAll();
+    }
+
+    public void deleteById(UUID id) {
+        cartItemPort.deleteById(id);
     }
 }

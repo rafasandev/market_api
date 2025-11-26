@@ -1,37 +1,65 @@
 package com.example.solid_classes.core.product.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.example.solid_classes.common.exception.BusinessRuleException;
 import com.example.solid_classes.core.product.model.Product;
 import com.example.solid_classes.core.product.ports.ProductPort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service que encapsula o Port e adiciona validações leves.
+ * Métodos CRUD delegam para o Port.
+ * Validações podem ser reutilizadas por múltiplos UseCases.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductPort productPort;
 
+    // Métodos CRUD - delegam para o Port
     public Product getById(UUID id) {
-        return productPort.getById(id);  // CORREÇÃO: Bug de recursão infinita!
+        return productPort.getById(id);
     }
 
-    public Product createProduct(Product newProduct) {
-        return productPort.save(newProduct);
+    public Product save(Product product) {
+        return productPort.save(product);
     }
 
-    public java.util.List<Product> getAllProducts() {
+    public List<Product> findAll() {
         return productPort.findAll();
     }
 
-    public java.util.List<Product> getProductsByCompanyId(UUID companyId) {
+    public List<Product> findByCompanyId(UUID companyId) {
         return productPort.findByCompanyId(companyId);
     }
 
-    public java.util.List<Product> getProductsByCategoryId(UUID categoryId) {
+    public List<Product> findByCategoryId(UUID categoryId) {
         return productPort.findByCategoryId(categoryId);
+    }
+
+    // Validações leves
+    public void validateStock(Product product, int requestedQuantity) {
+        if (!product.hasStock(requestedQuantity)) {
+            throw new BusinessRuleException(
+                String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
+                    product.getProductName(),
+                    product.getStockQuantity(),
+                    requestedQuantity)
+            );
+        }
+    }
+
+    public void validateAvailability(Product product) {
+        if (!product.isAvailable()) {
+            throw new BusinessRuleException(
+                String.format("Produto '%s' não está disponível para venda", product.getProductName())
+            );
+        }
     }
 }

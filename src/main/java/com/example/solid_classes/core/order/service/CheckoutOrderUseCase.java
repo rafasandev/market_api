@@ -1,7 +1,6 @@
 package com.example.solid_classes.core.order.service;
 
 import java.math.BigDecimal;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,127 +26,151 @@ import com.example.solid_classes.core.profile.service.individual.IndividualProfi
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * UseCase responsável por orquestrar o processo de checkout.
+ * Usa Services e componentes auxiliares para seguir SRP.
+ */
 @Service
 @RequiredArgsConstructor
 public class CheckoutOrderUseCase {
 
+    // Services para acesso aos dados
     private final OrderService orderService;
-    private final IndividualProfileService customerService;
+    private final IndividualProfileService individualProfileService;
     private final CartService cartService;
     private final OrderItemService orderItemService;
 
+    // Componentes auxiliares (SRP)
+    private final StockValidator stockValidator;
+    private final PickupCodeGenerator pickupCodeGenerator;
+    private final OrderCalculator orderCalculator;
+
+    // Mappers
     private final OrderMapper orderMapper;
 
     @Transactional
     public List<OrderResponseDto> checkout(OrderCheckoutForm orderCheckoutForm) {
+        // Buscar entidades via Services
         Cart cart = cartService.getById(orderCheckoutForm.getCartId());
-        IndividualProfile customer = customerService.getById(orderCheckoutForm.getCustomerId());
+        IndividualProfile customer = individualProfileService.getById(orderCheckoutForm.getCustomerId());
 
-        // CORREÇÃO: Usar .equals() para comparar UUIDs
+        // Validações de regras de negócio
+        validateCartOwnership(cart, customer);
+        validateCartNotEmpty(cart);
+        
+        // Validar estoque usando componente dedicado (SRP)
+        stockValidator.validateStock(cart.getItems());
+
+        // Agrupar itens por vendedor
+        Map<CompanyProfile, List<CartItem>> itemsBySeller = groupItemsBySeller(cart.getItems());
+
+        // Processar cada pedido por vendedor
+        List<Order> savedOrders = processOrdersBySeller(cart, itemsBySeller);
+        
+        // Limpar carrinho após sucesso
+        clearCartItems(cart);
+        
+        return orderMapper.toResponseDtoList(savedOrders);
+    }
+
+    /**
+     * Valida se o carrinho pertence ao cliente.
+     */
+    private void validateCartOwnership(Cart cart, IndividualProfile customer) {
         if (!cart.getId().equals(customer.getId())) {
-            throw new UserRuleException("Carrinho com os pedidos não pertencem ao usuário atual");
+            throw new UserRuleException("Carrinho não pertence ao usuário atual");
         }
+    }
 
-        // CORREÇÃO: Validar se carrinho não está vazio
+    /**
+     * Valida se o carrinho não está vazio.
+     */
+    private void validateCartNotEmpty(Cart cart) {
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new UserRuleException("Carrinho está vazio");
         }
+    }
 
-        // CORREÇÃO: Validar estoque de todos os produtos antes de processar
-        validateStock(cart.getItems());
+    /**
+     * Agrupa itens do carrinho por vendedor (empresa).
+     */
+    private Map<CompanyProfile, List<CartItem>> groupItemsBySeller(List<CartItem> items) {
+        return items.stream()
+                .collect(Collectors.groupingBy(item -> item.getProduct().getCompany()));
+    }
 
-        Map<CompanyProfile, List<CartItem>> itemsBySeller = groupItemsBySeller(cart.getItems());
-
+    /**
+     * Processa e cria pedidos agrupados por vendedor.
+     */
+    private List<Order> processOrdersBySeller(Cart cart, Map<CompanyProfile, List<CartItem>> itemsBySeller) {
         List<Order> savedOrders = new ArrayList<>();
 
         for (Map.Entry<CompanyProfile, List<CartItem>> entry : itemsBySeller.entrySet()) {
             CompanyProfile seller = entry.getKey();
             List<CartItem> storeItems = entry.getValue();
 
-            // CORREÇÃO: Calcular total corretamente com BigDecimal imutável
-            BigDecimal orderTotal = calculateOrderTotal(storeItems);
+            // Calcular total usando componente dedicado (SRP)
+            BigDecimal orderTotal = orderCalculator.calculateOrderTotal(storeItems);
 
+            // Criar pedido
             Order order = Order.builder()
                     .customer(cart.getProfile())
                     .company(seller)
-                    .pickUpcode(generateUniquePickupCode())
+                    .pickUpcode(pickupCodeGenerator.generateUniqueCode()) // Componente dedicado (SRP)
                     .status(OrderStatus.PENDENTE)
                     .orderTotal(orderTotal)
                     .build();
 
-            List<OrderItem> orderItems = storeItems
-                    .stream()
-                    .map(cartItem -> {
-                        // CORREÇÃO: Reservar produto e diminuir estoque
-                        cartItem.reserve();
-                        cartItem.getProduct().decreaseStock(cartItem.getProductQuantity());
-                        return orderItemService.createOrderItemSnapshot(cartItem, order);
-                    })
-                    .toList();
-
+            // Processar itens do pedido
+            List<OrderItem> orderItems = processOrderItems(storeItems, order);
             order.setOrderItems(orderItems);
 
-            savedOrders.add(orderService.registerOrder(order));
+            // Salvar pedido via Service
+            savedOrders.add(orderService.save(order));
         }
+
+        return savedOrders;
+    }
+
+    /**
+     * Processa itens do pedido: reserva, diminui estoque e cria OrderItem.
+     */
+    private List<OrderItem> processOrderItems(List<CartItem> cartItems, Order order) {
+        return cartItems.stream()
+                .map(cartItem -> {
+                    // Reservar e diminuir estoque
+                    cartItem.reserve();
+                    cartItem.getProduct().decreaseStock(cartItem.getProductQuantity());
+                    
+                    // Criar snapshot do item no pedido
+                    return createOrderItemSnapshot(cartItem, order);
+                })
+                .toList();
+    }
+
+    /**
+     * Cria snapshot do CartItem como OrderItem.
+     */
+    private OrderItem createOrderItemSnapshot(CartItem cartItem, Order order) {
+        OrderItem orderItem = OrderItem.builder()
+                .order(order)
+                .product(cartItem.getProduct())
+                .productName(cartItem.getProduct().getProductName())
+                .productPrice(cartItem.getUnitPriceSnapshot())
+                .productQuantity(cartItem.getProductQuantity())
+                .subtotal(cartItem.calculateSubtotal())
+                .build();
         
-        // CORREÇÃO: Limpar carrinho após sucesso
-        cartService.clearCart(cart);
-        return orderMapper.toResponseDtoList(savedOrders);
+        return orderItemService.save(orderItem);
     }
 
-    private void validateStock(List<CartItem> items) {
-        for (CartItem item : items) {
-            if (!item.getProduct().hasStock(item.getProductQuantity())) {
-                throw new UserRuleException(
-                    String.format("Produto '%s' não possui estoque suficiente. Disponível: %d, Solicitado: %d",
-                        item.getProduct().getProductName(),
-                        item.getProduct().getStockQuantity(),
-                        item.getProductQuantity())
-                );
-            }
+    /**
+     * Limpa itens do carrinho.
+     */
+    private void clearCartItems(Cart cart) {
+        if (cart.getItems() != null) {
+            cart.getItems().clear();
+            cartService.save(cart);
         }
-    }
-
-    private Map<CompanyProfile, List<CartItem>> groupItemsBySeller(List<CartItem> items) {
-        return items.stream()
-                .collect(Collectors.groupingBy(item -> item
-                        .getProduct()
-                        .getCompany()));
-    }
-
-    private BigDecimal calculateOrderTotal(List<CartItem> storeItems) {
-        // CORREÇÃO: BigDecimal é imutável, precisa atribuir o resultado
-        return storeItems.stream()
-            .map(CartItem::calculateSubtotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private String generateUniquePickupCode() {
-        String CHAR_POOL = "23456789ACDEFGHJKMNPQRSTUVWXYZ";
-        int CODE_LENGTH = 5;
-        SecureRandom random = new SecureRandom();
-        String code;
-        int maxAttempts = 10;
-        int attempts = 0;
-
-        // CORREÇÃO: Garantir unicidade do código de retirada
-        do {
-            StringBuilder codeBuilder = new StringBuilder(CODE_LENGTH + 1);
-            codeBuilder.append("#");
-            
-            for (int i = 0; i < CODE_LENGTH; i++) {
-                int randomIndex = random.nextInt(CHAR_POOL.length());
-                codeBuilder.append(CHAR_POOL.charAt(randomIndex));
-            }
-            
-            code = codeBuilder.toString();
-            attempts++;
-            
-            if (attempts >= maxAttempts) {
-                throw new UserRuleException("Não foi possível gerar código único de retirada. Tente novamente.");
-            }
-        } while (orderService.existsByPickupCode(code));
-
-        return code;
     }
 }

@@ -27,22 +27,19 @@ public class RegisterProductUseCase {
     
     @Transactional
     public ProductResponseDto registerProduct(ProductForm productForm) {
+        // Buscar dependências via Services
         Category category = categoryService.getById(productForm.getCategoryId());
         CompanyProfile company = companyProfileService.getById(productForm.getCompanyId());
 
-        if(!company.isActive())
-            throw new BusinessRuleException("Empresa inativa. Operação negada");
+        // Validações de negócio
+        companyProfileService.validateIsActive(company);
+        companyProfileService.validateBusinessSector(company, BusinessSector.COMMERCE);
+        categoryService.validateBusinessSectorCompatibility(category, BusinessSector.COMMERCE);
 
-        if(company.getBusinessSector() != BusinessSector.COMMERCE) 
-            throw new BusinessRuleException("Ramo da empresa apenas permite operações com produtos");
-
-        // CORREÇÃO: Validar compatibilidade entre categoria e tipo de negócio
-        if(category.getBusinessSector() != BusinessSector.COMMERCE)
-            throw new BusinessRuleException("Categoria não é compatível com produtos. Use categoria de comércio");
-
+        // Criar e persistir entidade via Service
         Product newProduct = productMapper.toEntity(productForm, category, company);
-        Product savedProduct = productService.createProduct(newProduct);
-        ProductResponseDto productResponse = productMapper.toResponseDto(savedProduct);
-        return productResponse;
+        Product savedProduct = productService.save(newProduct);
+        
+        return productMapper.toResponseDto(savedProduct);
     }
 }

@@ -41,7 +41,7 @@ public class RegisterServiceOfferingUseCase {
             throw new BusinessRuleException("Categoria não é compatível com serviços. Use categoria de serviços");
 
         ServiceOffering newService = serviceOfferingMapper.toEntity(serviceForm, category, company);
-        ServiceOffering savedService = serviceOfferingService.createService(newService);
+        ServiceOffering savedService = serviceOfferingService.save(newService);
         ServiceOfferingResponseDto responseDto = serviceOfferingMapper.toResponseDto(savedService);
         return responseDto;        
     }

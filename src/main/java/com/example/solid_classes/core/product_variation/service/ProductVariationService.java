@@ -1,31 +1,59 @@
 package com.example.solid_classes.core.product_variation.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
+import com.example.solid_classes.common.exception.BusinessRuleException;
 import com.example.solid_classes.core.product_variation.model.ProductVariation;
 import com.example.solid_classes.core.product_variation.ports.ProductVariationPort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service que encapsula o Port e adiciona validações leves.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductVariationService {
 
     private final ProductVariationPort productVariationPort;
 
-    public ProductVariation getById(java.util.UUID id) {
+    // Métodos CRUD - delegam para o Port
+    public ProductVariation getById(UUID id) {
         return productVariationPort.getById(id);
     }
 
-    public ProductVariation createProductVariation(ProductVariation newProductVariation) {
-        return productVariationPort.save(newProductVariation);
+    public ProductVariation save(ProductVariation variation) {
+        return productVariationPort.save(variation);
     }
 
-    public java.util.List<ProductVariation> getAllVariations() {
+    public List<ProductVariation> findAll() {
         return productVariationPort.findAll();
     }
 
-    public java.util.List<ProductVariation> getVariationsByProductId(java.util.UUID productId) {
+    public List<ProductVariation> findByProductId(UUID productId) {
         return productVariationPort.findByProductId(productId);
+    }
+
+    // Validações leves
+    public void validateStock(ProductVariation variation, int requestedQuantity) {
+        if (!variation.hasStock(requestedQuantity)) {
+            throw new BusinessRuleException(
+                String.format("Estoque insuficiente para variação '%s'. Disponível: %d, Solicitado: %d",
+                    variation.getVariationValue(),
+                    variation.getStockQuantity(),
+                    requestedQuantity)
+            );
+        }
+    }
+
+    public void validateAvailability(ProductVariation variation) {
+        if (!variation.isAvailable()) {
+            throw new BusinessRuleException(
+                String.format("Variação '%s' não está disponível", variation.getVariationValue())
+            );
+        }
     }
 }

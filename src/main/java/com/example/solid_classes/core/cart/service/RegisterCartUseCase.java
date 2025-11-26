@@ -26,7 +26,7 @@ public class RegisterCartUseCase {
         IndividualProfile owner = individualProfileService.getById(cartForm.getProfileId());
 
         Cart newCart = cartMapper.toEntity(cartForm, owner);
-        Cart savedCart = cartService.createCart(newCart);
+        Cart savedCart = cartService.save(newCart);
         CartResponseDto cartResponseDto = cartMapper.toResponseDto(savedCart);
         return cartResponseDto;
     }
@@ -34,7 +34,7 @@ public class RegisterCartUseCase {
     @Transactional
     public Cart createCartOnProfileCreation(IndividualProfile profile) {
         Cart newCart = cartMapper.toEntity(profile);
-        Cart savedCart = cartService.createCart(newCart);
+        Cart savedCart = cartService.save(newCart);
         return savedCart;
     }
 }

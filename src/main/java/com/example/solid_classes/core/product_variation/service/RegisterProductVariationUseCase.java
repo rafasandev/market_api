@@ -20,23 +20,25 @@ import lombok.RequiredArgsConstructor;
 public class RegisterProductVariationUseCase {
 
     private final ProductVariationService productVariationService;
-    private final ProductVariationMapper productVariationMapper;
-    private final VariationCategoryGlobalService categoryService;
     private final ProductService productService;
+    private final VariationCategoryGlobalService variationCategoryGlobalService;
+    private final ProductVariationMapper productVariationMapper;
 
     @Transactional
     public ProductVariationResponseDto registerProductVariation(ProductVariationForm variationForm) {
-        VariationCategoryEntity category = categoryService.getById(variationForm.getVariationCategoryId());
+        // Buscar dependências via Services
+        VariationCategoryEntity category = variationCategoryGlobalService.getById(variationForm.getVariationCategoryId());
         Product product = productService.getById(variationForm.getProductId());
 
-        if (!category.isActive())
+        // Validação de categoria ativa
+        if (!category.isActive()) {
             throw new BusinessRuleException("Categoria de variação inativa. Operação falhou");
+        }
 
-        // CORREÇÃO: Mapper já inicializa stockQuantity=0 e available=false
+        // Criar e persistir via Service
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category, product);
-
-        ProductVariation savedVariation = productVariationService.createProductVariation(newVariation);
-        ProductVariationResponseDto variationResponse = productVariationMapper.toResponseDto(savedVariation);
-        return variationResponse;
+        ProductVariation savedVariation = productVariationService.save(newVariation);
+        
+        return productVariationMapper.toResponseDto(savedVariation);
     }
 }

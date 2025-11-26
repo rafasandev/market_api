@@ -20,8 +20,8 @@ public class RegisterCategoryUseCase {
     @Transactional
     public CategoryResponseDto registerCategory(CategoryForm categoryForm) {
         Category newCategory = categoryMapper.toEntity(categoryForm);
-        Category savedCategory = categoryService.saveCategory(newCategory);
-        CategoryResponseDto responseDto = categoryMapper.toResponseDto(savedCategory);
-        return responseDto;
+        Category savedCategory = categoryService.save(newCategory);
+        
+        return categoryMapper.toResponseDto(savedCategory);
     }
 }

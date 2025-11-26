@@ -1,5 +1,6 @@
 package com.example.solid_classes.core.profile.service.individual;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -9,17 +10,25 @@ import com.example.solid_classes.core.profile.ports.IndividualProfilePort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service que encapsula o Port e adiciona validações leves.
+ */
 @Service
 @RequiredArgsConstructor
 public class IndividualProfileService {
     
-    private final IndividualProfilePort individualPort;
+    private final IndividualProfilePort individualProfilePort;
 
+    // Métodos CRUD - delegam para o Port
     public IndividualProfile getById(UUID profileId) {
-        return individualPort.getById(profileId);
-    } 
+        return individualProfilePort.getById(profileId);
+    }
 
-    public IndividualProfile registerProfile(IndividualProfile newProfile) {
-        return individualPort.save(newProfile);
+    public IndividualProfile save(IndividualProfile profile) {
+        return individualProfilePort.save(profile);
+    }
+
+    public List<IndividualProfile> findAll() {
+        return individualProfilePort.findAll();
     }
 }

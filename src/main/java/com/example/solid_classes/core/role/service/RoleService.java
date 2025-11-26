@@ -1,5 +1,8 @@
 package com.example.solid_classes.core.role.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.example.solid_classes.core.role.model.Role;
@@ -8,13 +11,29 @@ import com.example.solid_classes.core.role.ports.RolePort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service que encapsula o Port e adiciona validações leves.
+ */
 @Service
 @RequiredArgsConstructor
 public class RoleService {
 
     private final RolePort rolePort;
 
+    // Métodos CRUD - delegam para o Port
+    public Role getById(UUID id) {
+        return rolePort.getById(id);
+    }
+
     public Role getByRoleName(RoleName roleName) {
         return rolePort.getByRoleName(roleName);
+    }
+
+    public Role save(Role role) {
+        return rolePort.save(role);
+    }
+
+    public List<Role> findAll() {
+        return rolePort.findAll();
     }
 }

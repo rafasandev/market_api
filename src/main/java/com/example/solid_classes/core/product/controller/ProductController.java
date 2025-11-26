@@ -1,70 +1,61 @@
 package com.example.solid_classes.core.product.controller;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import com.example.solid_classes.core.product.dto.ProductForm;
 import com.example.solid_classes.core.product.dto.ProductResponseDto;
+import com.example.solid_classes.core.product.service.GetProductUseCase;
 import com.example.solid_classes.core.product.service.RegisterProductUseCase;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller responsável apenas por rotear requisições HTTP.
+ * Não contém lógica de negócio ou mapeamento.
+ */
 @RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final RegisterProductUseCase registerProductUseCase;
-    private final com.example.solid_classes.core.product.service.ProductService productService;
-    private final com.example.solid_classes.core.product.mapper.ProductMapper productMapper;
+    private final GetProductUseCase getProductUseCase;
 
     @PostMapping
     public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductForm productForm) {
-        ProductResponseDto productResponse = registerProductUseCase.registerProduct(productForm);
-        return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            registerProductUseCase.registerProduct(productForm)
+        );
     }
 
-    @org.springframework.web.bind.annotation.GetMapping
-    public ResponseEntity<java.util.List<ProductResponseDto>> getAllProducts() {
-        java.util.List<com.example.solid_classes.core.product.model.Product> products = productService.getAllProducts();
-        java.util.List<ProductResponseDto> response = products.stream()
-            .map(productMapper::toResponseDto)
-            .toList();
-        return ResponseEntity.ok(response);
+    @GetMapping
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
+        return ResponseEntity.ok(getProductUseCase.getAllProducts());
     }
 
-    @org.springframework.web.bind.annotation.GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDto> getProductById(@org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
-        com.example.solid_classes.core.product.model.Product product = productService.getById(id);
-        ProductResponseDto response = productMapper.toResponseDto(product);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable UUID id) {
+        return ResponseEntity.ok(getProductUseCase.getProductById(id));
     }
 
-    @org.springframework.web.bind.annotation.GetMapping("/company/{companyId}")
-    public ResponseEntity<java.util.List<ProductResponseDto>> getProductsByCompany(
-            @org.springframework.web.bind.annotation.PathVariable java.util.UUID companyId) {
-        java.util.List<com.example.solid_classes.core.product.model.Product> products = 
-            productService.getProductsByCompanyId(companyId);
-        java.util.List<ProductResponseDto> response = products.stream()
-            .map(productMapper::toResponseDto)
-            .toList();
-        return ResponseEntity.ok(response);
+    @GetMapping("/company/{companyId}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCompany(@PathVariable UUID companyId) {
+        return ResponseEntity.ok(getProductUseCase.getProductsByCompanyId(companyId));
     }
 
-    @org.springframework.web.bind.annotation.GetMapping("/category/{categoryId}")
-    public ResponseEntity<java.util.List<ProductResponseDto>> getProductsByCategory(
-            @org.springframework.web.bind.annotation.PathVariable java.util.UUID categoryId) {
-        java.util.List<com.example.solid_classes.core.product.model.Product> products = 
-            productService.getProductsByCategoryId(categoryId);
-        java.util.List<ProductResponseDto> response = products.stream()
-            .map(productMapper::toResponseDto)
-            .toList();
-        return ResponseEntity.ok(response);
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductResponseDto>> getProductsByCategory(@PathVariable UUID categoryId) {
+        return ResponseEntity.ok(getProductUseCase.getProductsByCategoryId(categoryId));
     }
 }

@@ -29,7 +29,7 @@ public class RegisterVariationCategoryUseCase {
     @Transactional
     public VariationCategoryResponseDto registerVariationCategory(VariationCategoryGlobalForm variationCategoryForm) {
         VariationCategoryGlobal variationCategory = variationCategoryMapper.toEntity(variationCategoryForm);
-        VariationCategoryGlobal savedVariationCategory = variationCategoryGlobalService.createVariationCategory(variationCategory);
+        VariationCategoryGlobal savedVariationCategory = variationCategoryGlobalService.save(variationCategory);
         VariationCategoryResponseDto responseDto = variationCategoryMapper.toResponseDto(savedVariationCategory);
         return responseDto;
     }
@@ -42,7 +42,7 @@ public class RegisterVariationCategoryUseCase {
             throw new BusinessRuleException("Empresa inativa. Operação falhou");
 
         VariationCategorySeller variationCategory = variationCategoryMapper.toEntity(variationCategoryForm, company);
-        VariationCategorySeller savedVariationCategory = variationCategorySellerService.createVariationCategory(variationCategory);
+        VariationCategorySeller savedVariationCategory = variationCategorySellerService.save(variationCategory);
         VariationCategoryResponseDto responseDto = variationCategoryMapper.toResponseDto(savedVariationCategory);
         return responseDto;
     }

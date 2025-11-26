@@ -27,33 +27,43 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterProfileUseCase {
 
-    private final UserService userService;
     private final IndividualProfileService individualProfileService;
     private final CompanyProfileService companyProfileService;
     private final RoleService roleService;
+    private final UserService userService;
     private final ProfileMapper profileMapper;
-    private final RegisterCartUseCase cartService;
+    private final RegisterCartUseCase registerCartUseCase;
 
     @Transactional
     public IndividualProfileResponseDto registerIndividual(IndividualProfileForm individualForm) {
+        // Buscar role via Service
         Role individualRole = roleService.getByRoleName(RoleName.INDIVIDUAL);
+        
+        // Criar usuário via Service
         User user = userService.signUp(individualForm.getEmail(), individualForm.getPassword(), Set.of(individualRole));
 
+        // Criar e persistir perfil via Service
         IndividualProfile newProfile = profileMapper.toEntity(individualForm, user);
-        IndividualProfile savedProfile = individualProfileService.registerProfile(newProfile);
-        cartService.createCartOnProfileCreation(savedProfile);
-        IndividualProfileResponseDto responseDto = profileMapper.toResponseDto(savedProfile);
-        return responseDto;
+        IndividualProfile savedProfile = individualProfileService.save(newProfile);
+        
+        // Criar carrinho via UseCase
+        registerCartUseCase.createCartOnProfileCreation(savedProfile);
+        
+        return profileMapper.toResponseDto(savedProfile);
     }
 
     @Transactional
     public CompanyProfileResponseDto registerCompany(CompanyProfileForm companyForm) {
+        // Buscar role via Service
         Role companyRole = roleService.getByRoleName(RoleName.COMPANY);
+        
+        // Criar usuário via Service
         User user = userService.signUp(companyForm.getEmail(), companyForm.getPassword(), Set.of(companyRole));
 
+        // Criar e persistir perfil via Service
         CompanyProfile newProfile = profileMapper.toEntity(companyForm, user);
-        CompanyProfile savedProfile = companyProfileService.registerProfile(newProfile);
-        CompanyProfileResponseDto responseDto = profileMapper.toResponseDto(savedProfile);
-        return responseDto;
+        CompanyProfile savedProfile = companyProfileService.save(newProfile);
+        
+        return profileMapper.toResponseDto(savedProfile);
     }
 }

@@ -21,54 +21,47 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterCartItemUseCase {
 
-    private final CartItemService cartItemService;
-    private final ProductService productService;
     private final CartService cartService;
-
+    private final ProductService productService;
+    private final CartItemService cartItemService;
     private final CartItemMapper cartItemMapper;
 
     @Transactional
     public CartItemResponseDto registerCartItem(CartItemForm cartItemForm) {
-        Cart cart = cartService.getByProfileId(cartItemForm.getUserId());
+        // Buscar dependências via Services
+        Cart cart = cartService.getCartByProfileId(cartItemForm.getUserId());
         Product product = productService.getById(cartItemForm.getProductId());
 
-        // CORREÇÃO: Validar se produto está disponível
-        if (!product.isAvailable()) {
-            throw new UserRuleException(
-                    String.format("Produto '%s' não está disponível para venda", product.getProductName()));
-        }
+        // Validar disponibilidade
+        productService.validateAvailability(product);
 
-        Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(cartItemForm.getProductId(), cart.getId());
+        // Verificar se item já existe no carrinho
+        Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(
+            cartItemForm.getProductId(), 
+            cart.getId()
+        );
+        
         CartItem newItem;
 
         if (optCart.isPresent()) {
+            // Item já existe - atualizar quantidade
             newItem = optCart.get();
             int newQuantity = newItem.getProductQuantity() + cartItemForm.getItemQuantity();
 
-            // CORREÇÃO: Validar estoque antes de adicionar quantidade
-            if (!product.hasStock(newQuantity)) {
-                throw new UserRuleException(
-                        String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
-                                product.getProductName(),
-                                product.getStockQuantity(),
-                                newQuantity));
-            }
+            // Validar estoque
+            productService.validateStock(product, newQuantity);
             newItem.addQuantity(cartItemForm.getItemQuantity());
         } else {
-            // CORREÇÃO: Validar estoque antes de criar novo item
-            if (!product.hasStock(cartItemForm.getItemQuantity())) {
-                throw new UserRuleException(
-                        String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
-                                product.getProductName(),
-                                product.getStockQuantity(),
-                                cartItemForm.getItemQuantity()));
-            }
+            // Novo item - validar estoque e criar
+            productService.validateStock(product, cartItemForm.getItemQuantity());
+            
             newItem = cartItemMapper.toEntity(cartItemForm, product, cart);
             newItem.setQuantity(cartItemForm.getItemQuantity());
         }
 
-        CartItem savedItem = cartItemService.createCartItem(newItem);
-        CartItemResponseDto itemResponse = cartItemMapper.toResponseDto(savedItem);
-        return itemResponse;
+        // Persistir via Service
+        CartItem savedItem = cartItemService.save(newItem);
+        
+        return cartItemMapper.toResponseDto(savedItem);
     }
 }
