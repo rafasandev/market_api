@@ -2,6 +2,7 @@ package com.example.solid_classes.core.user.service;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.example.solid_classes.core.role.model.Role;
@@ -19,9 +20,13 @@ public class UserSeeder {
     private final UserRepository userRepository;
     private final RoleService roleService;
 
+    @Value("${admin.email}")
+    private String adminEmail;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
     public void run() {
-        String adminEmail = "admin@uniso.com";
-        String adminPassword = "Senh@123";
         if (userRepository.findByEmail(adminEmail).isEmpty()) {
             Role adminRole = roleService.getByRoleName(RoleName.ADMIN);
             userService.adminSignUp(adminEmail, adminPassword, Set.of(adminRole));
