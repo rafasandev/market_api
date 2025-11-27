@@ -10,26 +10,30 @@ import com.example.solid_classes.core.variation_category.model.VariationCategory
 
 @Component
 public class ProductVariationMapper {
-    public ProductVariation toEntity(ProductVariationForm variationForm, VariationCategoryEntity category, Product product) {
+    public ProductVariation toEntity(
+            ProductVariationForm variationForm,
+            VariationCategoryEntity category,
+            Product product) {
         ProductVariation newVariation = ProductVariation.builder()
-            .variationValue(variationForm.getVariationValue())
-            .valueType(variationForm.getValueType())
-            .variationAdditionalPrice(variationForm.getVariationAdditionalPrice())
-            .variationCategory(category)
-            .product(product)
-            .stockQuantity(0)
-            .available(false)
-            .build();
+                .variationValue(variationForm.getVariationValue())
+                .valueType(variationForm.getValueType())
+                .variationAdditionalPrice(variationForm.getVariationAdditionalPrice())
+                .variationCategoryId(category.getId())
+                .stockQuantity(0)
+                .build();
         return newVariation;
     }
 
-    public ProductVariationResponseDto toResponseDto(ProductVariation variation) {
+    public ProductVariationResponseDto toResponseDto(
+            ProductVariation variation,
+            VariationCategoryEntity variationCategory,
+            Product product) {
         return ProductVariationResponseDto.builder()
-            .id(variation.getId())
-            .variationValue(variation.getVariationValue())
-            .variationPrice(variation.getVariationAdditionalPrice())
-            .variationCategoryName(variation.getVariationCategory().getName())
-            .variationProductName(variation.getProduct().getProductName())
-            .build();
+                .id(variation.getId())
+                .variationValue(variation.getVariationValue())
+                .variationPrice(variation.getVariationAdditionalPrice())
+                .variationCategoryName(variationCategory.getName())
+                .variationProductName(product.getProductName())
+                .build();
     }
 }

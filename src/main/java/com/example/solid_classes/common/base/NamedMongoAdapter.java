@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -37,18 +36,14 @@ public class NamedMongoAdapter<T, R extends MongoRepository<T, UUID>> implements
 
     @Override
     public Page<T> findAll(Pageable pageable) {
-        long total = repository.count();
-        List<T> content = repository.findAll();
-        
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), content.size());
-        
-        List<T> pageContent = content.subList(start, end);
-        return new PageImpl<>(pageContent, pageable, total);
+        return repository.findAll(pageable);
     }
 
     @Override
     public T save(T entity) {
+        if (entity instanceof AuditableMongoEntity) {
+            ((AuditableMongoEntity) entity).generateId();
+        }
         return repository.save(entity);
     }
 

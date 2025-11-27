@@ -9,15 +9,14 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.example.solid_classes.common.base.AuditableMongoEntity;
+import com.example.solid_classes.core.product_variation.model.ProductVariation;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Document(collection = "products")
 @Getter
-@Setter
 @SuperBuilder
 @NoArgsConstructor
 public class Product extends AuditableMongoEntity {
@@ -29,8 +28,6 @@ public class Product extends AuditableMongoEntity {
 
     private BigDecimal basePrice;
 
-    private boolean available;
-
     private int stockQuantity;
 
     @Indexed
@@ -39,46 +36,35 @@ public class Product extends AuditableMongoEntity {
     @Indexed
     private UUID categoryId;
 
-    private List<ProductVariationEmbedded> variations;
+    private List<ProductVariation> variations;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class ProductVariationEmbedded {
-        private UUID variationId; // ID único da variação
-        private String categoryName; // Ex: "Tamanho", "Cor"
-        private String value; // Ex: "Grande", "Vermelho"
-        private BigDecimal additionalPrice;
-        private int stockQuantity;
-        private boolean available;
-    }
+    // ----------------- Product methods -----------------
 
-    public void addVariation(ProductVariationEmbedded variation) {
+    public void addVariation(ProductVariation variation) {
         if (this.variations == null) {
             this.variations = new ArrayList<>();
         }
         this.variations.add(variation);
+        this.increaseProductStock(variation.getStockQuantity());
     }
 
     public void removeVariation(UUID variationId) {
         if (this.variations != null) {
-            this.variations.removeIf(v -> v.getVariationId().equals(variationId));
+            ProductVariation variation = findVariation(variationId);
+            this.decreaseProductStock(variation.getStockQuantity());
+            this.variations.remove(variation);
         }
     }
 
-    public ProductVariationEmbedded findVariationById(UUID variationId) {
-        if (this.variations == null) return null;
-        return this.variations.stream()
-            .filter(v -> v.getVariationId().equals(variationId))
-            .findFirst()
-            .orElse(null);
+    public boolean productIsAvaiable() {
+        return stockQuantity > 0;
     }
 
-    public boolean hasStock(int quantity) {
-        return this.available && this.stockQuantity >= quantity;
+    public boolean productHasStock(int quantity) {
+        return stockQuantity >= quantity;
     }
 
-    public void decreaseStock(int quantity) {
+    private void decreaseProductStock(int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantidade não pode ser negativa");
         }
@@ -88,10 +74,58 @@ public class Product extends AuditableMongoEntity {
         }
     }
 
-    public void increaseStock(int quantity) {
+    private void increaseProductStock(int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantidade não pode ser negativa");
         }
         this.stockQuantity += quantity;
     }
+
+    // --------------- Product Variations methods -----------------
+
+    public ProductVariation findVariation(UUID variationId) {
+        return variations.stream()
+                .filter(v -> v.getId().equals(variationId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Variação não encontrada"));
+    }
+
+    public void decreaseVariationStock(UUID variationId, int quantity) {
+        ProductVariation variation = findVariation(variationId);
+
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantidade não pode ser negativa");
+        }
+
+        if(variation.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("Estoque insuficiente na variação");
+        }
+
+        variation.setStockQuantity(variation.getStockQuantity() - quantity);
+        this.decreaseProductStock(quantity);
+    }
+
+    public void increaseVariationStock(UUID variationId, int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantidade não pode ser negativa");
+        }
+
+        ProductVariation variation = findVariation(variationId);
+
+        int variationNewStock = variation.getStockQuantity() + quantity;
+        variation.setStockQuantity(variationNewStock);
+
+        this.increaseProductStock(quantity);
+    }
+
+    public boolean variationIsAvaiable(UUID variationId) {
+        ProductVariation variation = findVariation(variationId);
+        return variation.isAvailable();
+    }
+
+    public BigDecimal calculateVariationPrice(UUID variationId) {
+        ProductVariation variation = findVariation(variationId);
+        return this.basePrice.add(variation.getVariationAdditionalPrice());
+    }
+
 }

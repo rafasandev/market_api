@@ -72,7 +72,6 @@ public class CheckoutOrderUseCase {
     }
 
     private Map<CompanyProfile, List<CartItem>> groupItemsBySeller(List<CartItem> items) {
-        // CompanyProfile company = companyProfileService.getById(null)
         return items.stream()
                 .collect(Collectors.groupingBy(item -> companyProfileService.getById(item.getProduct().getCompanyId())));
     }
@@ -106,7 +105,7 @@ public class CheckoutOrderUseCase {
         return cartItems.stream()
                 .map(cartItem -> {
                     cartItem.reserve();
-                    cartItem.getProduct().decreaseStock(cartItem.getProductQuantity());
+                    cartItem.getProduct().decreaseStock(cartItem.getItemQuantity());
 
                     return createOrderItemSnapshot(cartItem, order);
                 })
@@ -119,7 +118,7 @@ public class CheckoutOrderUseCase {
                 .product(cartItem.getProduct())
                 .productName(cartItem.getProduct().getProductName())
                 .productPrice(cartItem.getUnitPriceSnapshot())
-                .productQuantity(cartItem.getProductQuantity())
+                .productQuantity(cartItem.getItemQuantity())
                 .subtotal(cartItem.calculateSubtotal())
                 .build();
 

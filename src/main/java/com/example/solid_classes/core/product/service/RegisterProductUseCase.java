@@ -26,19 +26,16 @@ public class RegisterProductUseCase {
     
     @Transactional
     public ProductResponseDto registerProduct(ProductForm productForm) {
-        // Buscar dependências via Services
         Category category = categoryService.getById(productForm.getCategoryId());
         CompanyProfile company = companyProfileService.getById(productForm.getCompanyId());
 
-        // Validações de negócio
         companyProfileService.validateIsActive(company);
         companyProfileService.validateBusinessSector(company, BusinessSector.COMMERCE);
         categoryService.validateBusinessSectorCompatibility(category, BusinessSector.COMMERCE);
 
-        // Criar e persistir entidade via Service
         Product newProduct = productMapper.toEntity(productForm, category, company);
         Product savedProduct = productService.save(newProduct);
         
-        return productMapper.toResponseDto(savedProduct);
+        return productMapper.toResponseDto(savedProduct, category, company);
     }
 }

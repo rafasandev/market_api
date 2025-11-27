@@ -22,12 +22,12 @@ public class StockValidator {
      */
     public void validateStock(List<CartItem> items) {
         for (CartItem item : items) {
-            if (!item.getProduct().hasStock(item.getProductQuantity())) {
+            if (!item.getProduct().productHasStock(item.getItemQuantity())) {
                 throw new UserRuleException(
                     String.format("Produto '%s' não possui estoque suficiente. Disponível: %d, Solicitado: %d",
                         item.getProduct().getProductName(),
                         item.getProduct().getStockQuantity(),
-                        item.getProductQuantity())
+                        item.getItemQuantity())
                 );
             }
         }

@@ -58,7 +58,7 @@ public class Cart extends AuditableEntity {
             return 0;
         }
         return this.items.stream()
-            .mapToInt(CartItem::getProductQuantity)
+            .mapToInt(CartItem::getItemQuantity)
             .sum();
     }
 }

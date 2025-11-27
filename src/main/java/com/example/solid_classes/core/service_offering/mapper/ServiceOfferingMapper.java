@@ -23,10 +23,12 @@ public class ServiceOfferingMapper {
         return service;
     }
 
-    public ServiceOfferingResponseDto toResponseDto(ServiceOffering service) {
+    public ServiceOfferingResponseDto toResponseDto(ServiceOffering service, Category category, CompanyProfile company) {
         ServiceOfferingResponseDto responseDto = ServiceOfferingResponseDto.builder()
                 .id(service.getId())
                 .serviceName(service.getServiceName())
+                .categoryName(category.getCategoryName())
+                .companyName(company.getCompanyName())
                 .build();
         return responseDto;
     }

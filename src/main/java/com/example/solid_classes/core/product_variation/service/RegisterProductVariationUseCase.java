@@ -35,6 +35,6 @@ public class RegisterProductVariationUseCase {
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category, product);
         ProductVariation savedVariation = productVariationService.save(newVariation);
         
-        return productVariationMapper.toResponseDto(savedVariation);
+        return productVariationMapper.toResponseDto(savedVariation, category, product);
     }
 }

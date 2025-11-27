@@ -1,11 +1,11 @@
 package com.example.solid_classes.core.cart_item.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.cart.model.Cart;
 import com.example.solid_classes.core.cart_item.model.enums.ReservationStatus;
-import com.example.solid_classes.core.product.model.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,18 +22,24 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "cart_items", uniqueConstraints = @UniqueConstraint(columnNames = { "cart_id",
-        "product_id" }), indexes = {
-                @Index(name = "idx_cart_item_cart", columnList = "cart_id"),
-                @Index(name = "idx_cart_item_product", columnList = "product_id")
-        })
+@Table(
+    name = "cart_items", 
+    uniqueConstraints = @UniqueConstraint(columnNames = { "cart_id", "product_id" }), 
+    indexes = {
+        @Index(name = "idx_cart_item_cart", columnList = "cart_id"),
+        @Index(name = "idx_cart_item_product", columnList = "product_id")
+    })
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 public class CartItem extends AuditableEntity {
 
+    private UUID productVariationId;
+    private UUID productId;
+    private String productName;
+    
     @Column(nullable = false)
-    private int productQuantity;
+    private int itemQuantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPriceSnapshot;
@@ -43,33 +49,29 @@ public class CartItem extends AuditableEntity {
     private ReservationStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
-    private Product product;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", referencedColumnName = "id", nullable = false)
     private Cart cart;
 
     public void addQuantity(int quantity) {
         if (quantity > 0 && this.status == ReservationStatus.PENDING) {
-            this.productQuantity += quantity;
+            this.itemQuantity += quantity;
         }
     }
 
     public void removeQuantity(int quantity) {
-        if (quantity > 0 && this.productQuantity >= quantity && this.status == ReservationStatus.PENDING) {
-            this.productQuantity -= quantity;
+        if (quantity > 0 && this.itemQuantity >= quantity && this.status == ReservationStatus.PENDING) {
+            this.itemQuantity -= quantity;
         }
     }
 
     public void setQuantity(int quantity) {
         if (quantity > 0 && this.status == ReservationStatus.PENDING) {
-            this.productQuantity = quantity;
+            this.itemQuantity = quantity;
         }
     }
 
     public BigDecimal calculateSubtotal() {
-        return this.unitPriceSnapshot.multiply(BigDecimal.valueOf(this.productQuantity));
+        return this.unitPriceSnapshot.multiply(BigDecimal.valueOf(this.itemQuantity));
     }
 
     public void reserve() {

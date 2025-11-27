@@ -40,7 +40,7 @@ public class RegisterCartItemUseCase {
 
         if (optCart.isPresent()) {
             newItem = optCart.get();
-            int newQuantity = newItem.getProductQuantity() + cartItemForm.getItemQuantity();
+            int newQuantity = newItem.getItemQuantity() + cartItemForm.getItemQuantity();
 
             productService.validateStock(product, newQuantity);
             newItem.addQuantity(cartItemForm.getItemQuantity());

@@ -9,4 +9,6 @@ import lombok.Getter;
 public class ServiceOfferingResponseDto {
     private UUID id;
     private String serviceName;
+    private String categoryName;
+    private String companyName;
 }

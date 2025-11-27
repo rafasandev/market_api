@@ -17,19 +17,21 @@ public class ProductMapper {
                 .description(productForm.getProductDescription())
                 .basePrice(productForm.getPriceBase())
                 .stockQuantity(productForm.getStockQuantity())
-                .available(productForm.getStockQuantity() > 0)
                 .categoryId(category.getId())
                 .companyId(company.getId())
                 .build();
         return product;
     }
 
-    public ProductResponseDto toResponseDto(Product product) {
+    public ProductResponseDto toResponseDto(Product product, Category category, CompanyProfile company) {
         ProductResponseDto responseDto = ProductResponseDto.builder()
                 .id(product.getId())
                 .name(product.getProductName())
                 .description(product.getDescription())
+                .categoryName(category.getCategoryName())
+                .companyName(company.getCompanyName())
                 .build();
         return responseDto;
     }
+
 }

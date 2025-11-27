@@ -38,7 +38,7 @@ public class ProductService {
     }
 
     public void validateStock(Product product, int requestedQuantity) {
-        if (!product.hasStock(requestedQuantity)) {
+        if (!product.productHasStock(requestedQuantity)) {
             throw new BusinessRuleException(
                 String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
                     product.getProductName(),
@@ -49,7 +49,7 @@ public class ProductService {
     }
 
     public void validateAvailability(Product product) {
-        if (!product.isAvailable()) {
+        if (!product.productIsAvaiable()) {
             throw new BusinessRuleException(
                 String.format("Produto '%s' não está disponível para venda", product.getProductName())
             );

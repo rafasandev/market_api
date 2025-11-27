@@ -1,10 +1,10 @@
 package com.example.solid_classes.core.order_item.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import com.example.solid_classes.common.base.AuditableEntity;
 import com.example.solid_classes.core.order.model.Order;
-import com.example.solid_classes.core.product.model.Product;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,25 +23,35 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class OrderItem extends AuditableEntity {
 
+    @Column(nullable = false)
+    private UUID productId;
+
+    private UUID productVariationId;
+
     @Column(nullable = false, length = 255)
     private String productName;
-    
+
+    @Column(length = 255)
+    private String productVariationValue;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal productPrice;
-    
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal variationAdditionalPriceSnapshot;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal finalUnitPriceSnapshot;
+
     @Column(nullable = false)
-    private int productQuantity;
-    
+    private int orderQuantity;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
 
     public void setOrder(Order order) {
         if (this.order != null) {
@@ -55,15 +65,7 @@ public class OrderItem extends AuditableEntity {
         }
     }
 
-    public void setProduct(Product product) {
-        // if (this.product != null) {
-        //     this.product.removeOrderItem(this);
-        // }
-
-        this.product = product;
-
-        // if (product != null) {
-        //     product.addOrderItem(this);
-        // }
+    public void calculateSubtotal() {
+        this.subtotal = finalUnitPriceSnapshot.multiply(BigDecimal.valueOf(orderQuantity));
     }
 }

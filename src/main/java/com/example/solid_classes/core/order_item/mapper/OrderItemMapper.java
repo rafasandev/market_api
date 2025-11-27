@@ -13,7 +13,7 @@ public class OrderItemMapper {
         OrderItem orderItem = OrderItem.builder()
             .productName(cartItem.getProduct().getProductName())
             .productPrice(cartItem.getUnitPriceSnapshot())
-            .productQuantity(cartItem.getProductQuantity())
+            .productQuantity(cartItem.getItemQuantity())
             .subtotal(cartItem.calculateSubtotal())
             .product(cartItem.getProduct())
             .order(order)
