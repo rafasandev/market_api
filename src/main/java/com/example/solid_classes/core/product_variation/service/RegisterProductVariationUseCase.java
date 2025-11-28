@@ -33,7 +33,9 @@ public class RegisterProductVariationUseCase {
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category);
         ProductVariation savedVariation = productVariationService.save(newVariation);
         product.addVariation(savedVariation);
-        
+        // Persist product so the embedded variation list and aggregate stock are updated
+        productService.save(product);
+
         return productVariationMapper.toResponseDto(savedVariation, category, product);
     }
 }

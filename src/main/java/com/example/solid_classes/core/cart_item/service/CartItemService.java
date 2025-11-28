@@ -21,8 +21,8 @@ public class CartItemService {
         return cartItemPort.getById(id);
     }
 
-    public Optional<CartItem> getByProductIdAndCartId(UUID productId, UUID cartId) {
-        return cartItemPort.getByProductIdAndCartId(productId, cartId);
+    public Optional<CartItem> getByProductVariationIdAndCartId(UUID productVariationId, UUID cartId) {
+        return cartItemPort.getByProductVariationIdAndCartId(productVariationId, cartId);
     }
 
     public CartItem save(CartItem cartItem) {

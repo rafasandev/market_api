@@ -18,7 +18,7 @@ public class CartItemAdapter extends NamedCrudAdapter<CartItem, CartItemReposito
     }
 
     @Override
-    public Optional<CartItem> getByProductIdAndCartId(UUID productId, UUID cartId) {
-        return repository.findByProductIdAndCartId(productId, cartId);
+    public Optional<CartItem> getByProductVariationIdAndCartId(UUID productVariationId, UUID cartId) {
+        return repository.findByProductVariationIdAndCartId(productVariationId, cartId);
     }
 }

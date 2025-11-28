@@ -129,7 +129,15 @@ public class CheckoutOrderUseCase {
                     cartItem.reserve();
                     Product product = productService.getById(cartItem.getProductId());
                     ProductVariation variation = productVariationService.getById(cartItem.getProductVariationId());
+
+                    // Decrease stock on the product aggregate (embedded variation) and persist
                     product.decreaseVariationStock(variation, cartItem.getItemQuantity());
+                    productService.save(product);
+
+                    // Also decrease and persist stock on the standalone ProductVariation document
+                    variation.setStockQuantity(variation.getStockQuantity() - cartItem.getItemQuantity());
+                    productVariationService.save(variation);
+
                     return orderItemService.createOrderItemSnapshot(cartItem, order, variation);
                 })
                 .toList();

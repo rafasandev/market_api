@@ -50,7 +50,7 @@ public class RegisterCartItemUseCase {
         productService.validateAvailability(product);
         productVariationService.validateAvailability(variation);
 
-        Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(variation.getProductId(), cart.getId());
+        Optional<CartItem> optCart = cartItemService.getByProductVariationIdAndCartId(variation.getId(), cart.getId());
 
         CartItem newItem;
 

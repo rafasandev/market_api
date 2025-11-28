@@ -23,11 +23,12 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
-    name = "cart_items", 
-    uniqueConstraints = @UniqueConstraint(columnNames = { "cart_id", "product_id" }), 
+    name = "cart_items",
+    // Unique per cart + specific product variation (allows multiple variations of same product)
+    uniqueConstraints = @UniqueConstraint(columnNames = { "cart_id", "product_variation_id" }),
     indexes = {
         @Index(name = "idx_cart_item_cart", columnList = "cart_id"),
-        @Index(name = "idx_cart_item_product", columnList = "product_id")
+        @Index(name = "idx_cart_item_product_variation", columnList = "product_variation_id")
     })
 @Getter
 @SuperBuilder
