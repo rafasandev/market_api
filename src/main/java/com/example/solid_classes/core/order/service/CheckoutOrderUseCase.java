@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -18,8 +19,13 @@ import com.example.solid_classes.core.order.dto.OrderResponseDto;
 import com.example.solid_classes.core.order.mapper.OrderMapper;
 import com.example.solid_classes.core.order.model.Order;
 import com.example.solid_classes.core.order.model.enums.OrderStatus;
+import com.example.solid_classes.core.order_item.mapper.OrderItemMapper;
 import com.example.solid_classes.core.order_item.model.OrderItem;
 import com.example.solid_classes.core.order_item.service.OrderItemService;
+import com.example.solid_classes.core.product.model.Product;
+import com.example.solid_classes.core.product.service.ProductService;
+import com.example.solid_classes.core.product_variation.model.ProductVariation;
+import com.example.solid_classes.core.product_variation.service.ProductVariationService;
 import com.example.solid_classes.core.profile.model.company.CompanyProfile;
 import com.example.solid_classes.core.profile.model.individual.IndividualProfile;
 import com.example.solid_classes.core.profile.service.company.CompanyProfileService;
@@ -36,12 +42,15 @@ public class CheckoutOrderUseCase {
     private final CompanyProfileService companyProfileService;
     private final CartService cartService;
     private final OrderItemService orderItemService;
+    private final ProductService productService;
+    private final ProductVariationService productVariationService;
 
     private final StockValidator stockValidator;
     private final PickupCodeGenerator pickupCodeGenerator;
     private final OrderCalculator orderCalculator;
 
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
 
     @Transactional
     public List<OrderResponseDto> checkout(OrderCheckoutForm orderCheckoutForm) {
@@ -73,7 +82,11 @@ public class CheckoutOrderUseCase {
 
     private Map<CompanyProfile, List<CartItem>> groupItemsBySeller(List<CartItem> items) {
         return items.stream()
-                .collect(Collectors.groupingBy(item -> companyProfileService.getById(item.getProduct().getCompanyId())));
+                .collect(Collectors.groupingBy(item -> {
+                    UUID productId = item.getProductId();
+                    Product product = productService.getById(productId);
+                    return companyProfileService.getById(product.getCompanyId());
+                }));
     }
 
     private List<Order> processOrdersBySeller(Cart cart, Map<CompanyProfile, List<CartItem>> itemsBySeller) {
@@ -105,22 +118,17 @@ public class CheckoutOrderUseCase {
         return cartItems.stream()
                 .map(cartItem -> {
                     cartItem.reserve();
-                    cartItem.getProduct().decreaseStock(cartItem.getItemQuantity());
-
-                    return createOrderItemSnapshot(cartItem, order);
+                    Product product = productService.getById(cartItem.getProductId());
+                    ProductVariation variation = productVariationService.getById(cartItem.getProductVariationId());
+                    product.decreaseVariationStock(variation, cartItem.getItemQuantity());
+                    return createOrderItemSnapshot(cartItem, order, variation);
                 })
                 .toList();
     }
 
-    private OrderItem createOrderItemSnapshot(CartItem cartItem, Order order) {
-        OrderItem orderItem = OrderItem.builder()
-                .order(order)
-                .product(cartItem.getProduct())
-                .productName(cartItem.getProduct().getProductName())
-                .productPrice(cartItem.getUnitPriceSnapshot())
-                .productQuantity(cartItem.getItemQuantity())
-                .subtotal(cartItem.calculateSubtotal())
-                .build();
+    private OrderItem createOrderItemSnapshot(CartItem cartItem, Order order, ProductVariation variation) {
+        
+        OrderItem orderItem = orderItemMapper.toOrderItemSnapshot(cartItem, order, variation);
 
         return orderItemService.save(orderItem);
     }

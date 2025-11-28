@@ -13,6 +13,8 @@ import com.example.solid_classes.core.cart_item.mapper.CartItemMapper;
 import com.example.solid_classes.core.cart_item.model.CartItem;
 import com.example.solid_classes.core.product.model.Product;
 import com.example.solid_classes.core.product.service.ProductService;
+import com.example.solid_classes.core.product_variation.model.ProductVariation;
+import com.example.solid_classes.core.product_variation.service.ProductVariationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,16 +25,21 @@ public class RegisterCartItemUseCase {
     private final CartService cartService;
     private final ProductService productService;
     private final CartItemService cartItemService;
+    private final ProductVariationService productVariationService;
+
     private final CartItemMapper cartItemMapper;
 
     @Transactional
     public CartItemResponseDto registerCartItem(CartItemForm cartItemForm) {
         Cart cart = cartService.getCartByProfileId(cartItemForm.getUserId());
-        Product product = productService.getById(cartItemForm.getProductId());
+        ProductVariation variation = productVariationService.getById(cartItemForm.getProductVariationId());
+        Product product = productService.getById(variation.getProductId());
 
         productService.validateAvailability(product);
+        productVariationService.validateAvailability(variation);
+
         Optional<CartItem> optCart = cartItemService.getByProductIdAndCartId(
-            cartItemForm.getProductId(), 
+            variation.getProductId(), 
             cart.getId()
         );
         

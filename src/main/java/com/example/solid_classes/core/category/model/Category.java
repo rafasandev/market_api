@@ -3,7 +3,6 @@ package com.example.solid_classes.core.category.model;
 import java.util.List;
 
 import com.example.solid_classes.common.base.AuditableEntity;
-import com.example.solid_classes.core.product.model.Product;
 import com.example.solid_classes.core.profile.model.company.enums.BusinessSector;
 import com.example.solid_classes.core.service_offering.model.ServiceOffering;
 import com.example.solid_classes.core.variation_category.model.variation_global.VariationCategoryGlobal;
@@ -33,23 +32,10 @@ public class Category extends AuditableEntity {
     private BusinessSector businessSector;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ServiceOffering> services;
 
     @ManyToMany(mappedBy = "categories")
     private List<VariationCategoryGlobal> variationCategories;
-
-    public void addProduct(Product product) {
-        if (product != null && this.products != null && !this.products.contains(product))
-            this.products.add(product);
-    }
-
-    public void removeProduct(Product product) {
-        if (product != null && this.products != null && this.products.contains(product))
-            this.products.remove(product);
-    }
 
     public void addService(ServiceOffering service) {
         if (service != null && this.services != null && !this.services.contains(service))

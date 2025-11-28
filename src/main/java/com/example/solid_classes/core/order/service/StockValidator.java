@@ -6,27 +6,24 @@ import org.springframework.stereotype.Component;
 
 import com.example.solid_classes.common.exception.UserRuleException;
 import com.example.solid_classes.core.cart_item.model.CartItem;
+import com.example.solid_classes.core.product_variation.model.ProductVariation;
+import com.example.solid_classes.core.product_variation.service.ProductVariationService;
 
-/**
- * Componente responsável por validar estoque de itens do carrinho.
- * Segue SRP - responsabilidade única de validação de estoque.
- */
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class StockValidator {
 
-    /**
-     * Valida se todos os itens têm estoque suficiente.
-     * 
-     * @param items Lista de itens do carrinho
-     * @throws UserRuleException se algum item não tiver estoque suficiente
-     */
+    private final ProductVariationService productVariationService;
+
     public void validateStock(List<CartItem> items) {
         for (CartItem item : items) {
-            if (!item.getProduct().productHasStock(item.getItemQuantity())) {
+            ProductVariation variation = productVariationService.getById(item.getProductVariationId());
+            if (!variation.hasStock(item.getItemQuantity())) {
                 throw new UserRuleException(
-                    String.format("Produto '%s' não possui estoque suficiente. Disponível: %d, Solicitado: %d",
-                        item.getProduct().getProductName(),
-                        item.getProduct().getStockQuantity(),
+                    String.format("Produto não possui estoque suficiente. Disponível: %d, Solicitado: %d",
+                        variation.getStockQuantity(),
                         item.getItemQuantity())
                 );
             }

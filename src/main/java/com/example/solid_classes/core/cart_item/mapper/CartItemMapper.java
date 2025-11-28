@@ -11,22 +11,24 @@ import com.example.solid_classes.core.product.model.Product;
 
 @Component
 public class CartItemMapper {
-    
+
     public CartItem toEntity(CartItemForm cartItemForm, Product product, Cart cart) {
         CartItem newItem = CartItem.builder()
-            .product(product)
-            .cart(cart)
-            .productQuantity(cartItemForm.getItemQuantity())
-            .unitPriceSnapshot(product.getBasePrice())
-            .status(ReservationStatus.PENDING)
-            .build();
+                .productVariationId(cartItemForm.getProductVariationId())
+                .productId(product.getId())
+                .productName(product.getProductName())
+                .itemQuantity(cartItemForm.getItemQuantity())
+                .unitPriceSnapshot(product.getBasePrice())
+                .status(ReservationStatus.PENDING)
+                .cart(cart)
+                .build();
         return newItem;
     }
 
     public CartItemResponseDto toResponseDto(CartItem cartItem) {
         CartItemResponseDto cartItemResponseDto = CartItemResponseDto.builder()
-            .productName(cartItem.getProduct().getProductName())
-            .build();
+                .productName(cartItem.getProductName())
+                .build();
         return cartItemResponseDto;
     }
 }

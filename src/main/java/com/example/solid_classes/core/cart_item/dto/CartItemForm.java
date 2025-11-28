@@ -14,7 +14,7 @@ public class CartItemForm {
     private Integer itemQuantity;
     
     @NotNull(message = "O produto é obrigatório")
-    private UUID productId;
+    private UUID productVariationId;
     
     @NotNull(message = "O usuário é obrigatório")
     private UUID userId;

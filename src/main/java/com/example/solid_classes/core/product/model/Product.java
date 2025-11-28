@@ -90,7 +90,15 @@ public class Product extends AuditableMongoEntity {
                 .orElseThrow(() -> new IllegalArgumentException("Variação não encontrada"));
     }
 
-    public void decreaseVariationStock(UUID variationId, int quantity) {
+    public void decreaseVariationStock(ProductVariation variation, int quantity) {
+        decreaseVariationStockById(variation.getId(), quantity);
+    }
+
+    public void increaseVariationStock(ProductVariation variation, int quantity) {
+        increaseVariationStock(variation.getId(), quantity);
+    }
+
+    public void decreaseVariationStockById(UUID variationId, int quantity) {
         ProductVariation variation = findVariation(variationId);
 
         if (quantity < 0) {

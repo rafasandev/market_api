@@ -21,6 +21,7 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 public class ProductVariation extends AuditableMongoEntity {
 
+    private UUID productId;
     private UUID variationCategoryId;
     private VariationCategoryType variationCategoryType;
     private VariationValueType valueType;

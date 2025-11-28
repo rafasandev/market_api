@@ -3,7 +3,6 @@ package com.example.solid_classes.core.profile.model.company;
 import java.util.List;
 
 import com.example.solid_classes.core.order.model.Order;
-import com.example.solid_classes.core.product.model.Product;
 import com.example.solid_classes.core.profile.model.ProfileEntity;
 import com.example.solid_classes.core.profile.model.company.enums.BusinessSector;
 import com.example.solid_classes.core.service_offering.model.ServiceOffering;
@@ -39,9 +38,6 @@ public class CompanyProfile extends ProfileEntity {
     private BusinessSector businessSector;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ServiceOffering> services;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -49,16 +45,6 @@ public class CompanyProfile extends ProfileEntity {
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
-
-    public void addProduct(Product product) {
-        if (product != null && this.products != null && !this.products.contains(product))
-            this.products.add(product);
-    }
-
-    public void removeProduct(Product product) {
-        if (product != null && this.products != null && this.products.contains(product))
-            this.products.remove(product);
-    }
 
     public void addService(ServiceOffering service) {
         if (service != null && this.services != null && !this.services.contains(service))
