@@ -161,15 +161,22 @@ domain/
 ├── controller/      # REST endpoints with @Valid annotations
 ├── dto/            # Request/Response DTOs with validation
 ├── mapper/         # Entity ↔ DTO conversion (Spring @Component)
-├── model/          # JPA entities extending AuditableEntity
+├── model/          # JPA entities or Mongo Documents
 │   └── enums/      # Domain-specific enums
 ├── ports/          # Interface extending NamedCrudPort<T>
-├── repository/     # JpaRepository interfaces
+├── repository/     # Database access layer (separated by type)
+│   ├── jpa/        # JpaRepository interfaces (PostgreSQL)
+│   └── mongo/      # MongoRepository interfaces (MongoDB)
 └── service/
-    ├── DomainAdapter.java        # Implements port, extends NamedCrudAdapter
+    ├── DomainAdapter.java        # Implements port, extends NamedCrudAdapter or NamedMongoAdapter
     ├── DomainService.java        # Business logic orchestration
     └── Register[Domain]UseCase.java  # @Transactional use cases
 ```
+
+**Repository Directory Structure Rules:**
+- **`repository/jpa/`**: Reserved for repositories that extend `JpaRepository<T, UUID>` and connect to **PostgreSQL**. Used for transactional entities like `User`, `Order`, `Cart`, `Category`, etc.
+- **`repository/mongo/`**: Reserved for repositories that extend `MongoRepository<T, UUID>` and connect to **MongoDB**. Used for catalog entities like `Product`, `ProductVariation`, `ServiceOffering`, and log documents.
+- The adapter must use the appropriate base class: `NamedCrudAdapter` for JPA repositories or `NamedMongoAdapter` for Mongo repositories.
 
 **Base Abstractions**: 
 - All entities extend `AuditableEntity` (provides UUID id, createdAt, updatedAt with JPA auditing)
@@ -192,9 +199,11 @@ Para garantir consistência em toda a base de código, siga este padrão rigoros
     - `core/<domain>/controller` — controladores REST, mapeamento de endpoints e uso de `@Valid` em `@RequestBody`.
     - `core/<domain>/dto` — `*Form` (entrada), `*ResponseDto` (saída). Mensagens de validação em Português.
     - `core/<domain>/mapper` — `@Component` que converte `Form` ↔ `Entity` ↔ `ResponseDto` (não usar MapStruct).
-    - `core/<domain>/model` — JPA entities que estendem `AuditableEntity` ou `ProfileEntity` quando aplicável.
+    - `core/<domain>/model` — Entidades JPA (estendem `AuditableEntity` ou `ProfileEntity`) ou Documentos Mongo (estendem `AuditableMongoEntity`).
     - `core/<domain>/ports` — interfaces `*Port` que estendem `NamedCrudPort<T>` (contrato da camada de domínio).
-    - `core/<domain>/repository` — `JpaRepository<T, UUID>` para persistência.
+    - `core/<domain>/repository` — Diretório de persistência separado por tipo de banco:
+        - `core/<domain>/repository/jpa/` — interfaces `JpaRepository<T, UUID>` para entidades PostgreSQL.
+        - `core/<domain>/repository/mongo/` — interfaces `MongoRepository<T, UUID>` para documentos MongoDB.
     - `core/<domain>/service` — `*Service` para validações leves e orquestração local (delegam persistência ao Port).
     - `core/<domain>/service/Register*UseCase.java` — caso de uso transacional para operações complexas envolvendo múltiplos serviços/adapters.
 
@@ -215,9 +224,13 @@ Para garantir consistência em toda a base de código, siga este padrão rigoros
     - Use métodos de conveniência para manter a consistência bidirecional (add/remove/set que atualizam ambos os lados).
 
 - **Persistência / Adapters:**
-    - Adapters implementam portas e encapsulam acesso a `JpaRepository`.
-    - `NamedCrudAdapter` fornece implementação comum; sempre passe `entityName` para mensagens amigáveis (ex.: "Produto não encontrado(a)").
+    - Adapters implementam portas e encapsulam acesso a repositórios (`JpaRepository` ou `MongoRepository`).
+    - Use `NamedCrudAdapter` para repositórios JPA (PostgreSQL) e `NamedMongoAdapter` para repositórios Mongo (MongoDB).
+    - Sempre passe `entityName` para mensagens amigáveis (ex.: "Produto não encontrado(a)").
     - Evite lógica de negócio nas adapters — elas são adaptadores de infraestrutura.
+    - **Regra crítica:** Escolha o adapter correto baseado no tipo de repositório:
+        - Entidade JPA → `repository/jpa/` → `NamedCrudAdapter`
+        - Documento Mongo → `repository/mongo/` → `NamedMongoAdapter`
 
 - **Services e UseCases:**
     - `*Service` contém validações reutilizáveis e lógica leve que não exige transação distribuída.
@@ -310,8 +323,10 @@ Follow this directory structure for every new domain (`src/main/java/com/example
 5.  **`ports/`** (Output Port):
     - Interfaces extending `NamedCrudPort<T>`.
 
-6.  **`repository/`** (DB Access):
-    - Interfaces extending `JpaRepository` or `MongoRepository`.
+6.  **`repository/`** (DB Access - Separated by Type):
+    - **`repository/jpa/`**: Interfaces extending `JpaRepository<T, UUID>` for PostgreSQL entities.
+    - **`repository/mongo/`**: Interfaces extending `MongoRepository<T, UUID>` for MongoDB documents.
+    - **Rule:** Always place repositories in the correct subdirectory based on database type.
 
 7.  **`service/`** (Domain Logic):
     - `[Domain]Adapter`: Implements Port, uses Repository.
