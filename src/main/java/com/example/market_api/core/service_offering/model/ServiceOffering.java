@@ -44,6 +44,8 @@ public class ServiceOffering extends AuditableMongoEntity {
     @Indexed
     private UUID categoryId;
 
+    private String locationReference;
+
     public void activate() {
         this.available = true;
     }

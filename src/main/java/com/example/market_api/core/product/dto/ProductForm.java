@@ -30,4 +30,7 @@ public class ProductForm {
     
     @NotNull(message = "A categoria é obrigatória")
     private UUID categoryId;
+
+    @Size(max = 255, message = "A referência de localização deve ter no máximo 255 caracteres")
+    private String locationReference;
 }

@@ -15,4 +15,5 @@ public class ProductResponseDto {
     private int stockQuantity;
     private String companyName;
     private String categoryName;
+    private String locationReference;
 }

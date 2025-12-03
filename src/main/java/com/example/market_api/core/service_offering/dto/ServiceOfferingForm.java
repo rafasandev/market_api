@@ -28,4 +28,7 @@ public class ServiceOfferingForm {
     
     @NotNull(message = "A empresa é obrigatória")
     private UUID companyId;
+
+    @Size(max = 255, message = "A referência de localização deve ter no máximo 255 caracteres")
+    private String locationReference;
 }

@@ -11,4 +11,5 @@ public class ServiceOfferingResponseDto {
     private String serviceName;
     private String categoryName;
     private String companyName;
+    private String locationReference;
 }

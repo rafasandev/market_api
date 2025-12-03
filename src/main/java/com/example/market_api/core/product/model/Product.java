@@ -38,6 +38,9 @@ public class Product extends AuditableMongoEntity {
 
     private List<ProductVariation> variations;
 
+    // Referência textual do ponto físico (ex.: "Biblioteca - Mesa 12")
+    private String locationReference;
+
     // ----------------- Product methods -----------------
 
     public void addVariation(ProductVariation variation) {

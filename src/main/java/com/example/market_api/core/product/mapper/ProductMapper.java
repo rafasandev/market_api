@@ -17,6 +17,7 @@ public class ProductMapper {
                 .description(productForm.getProductDescription())
                 .basePrice(productForm.getPriceBase())
                 .stockQuantity(productForm.getStockQuantity())
+            .locationReference(productForm.getLocationReference())
                 .categoryId(category.getId())
                 .companyId(company.getId())
                 .build();
@@ -32,6 +33,7 @@ public class ProductMapper {
                 .stockQuantity(product.getStockQuantity())
                 .categoryName(category.getCategoryName())
                 .companyName(company.getCompanyName())
+                .locationReference(product.getLocationReference())
                 .build();
         return responseDto;
     }

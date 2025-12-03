@@ -17,6 +17,7 @@ public class ServiceOfferingMapper {
                 .description(serviceForm.getDescription())
                 .price(serviceForm.getPrice())
                 .available(true)
+            .locationReference(serviceForm.getLocationReference())
                 .categoryId(category.getId())
                 .companyId(company.getId())
                 .build();
@@ -29,6 +30,7 @@ public class ServiceOfferingMapper {
                 .serviceName(service.getServiceName())
                 .categoryName(category.getCategoryName())
                 .companyName(company.getCompanyName())
+                .locationReference(service.getLocationReference())
                 .build();
         return responseDto;
     }
