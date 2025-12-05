@@ -1,0 +1,16 @@
+package com.example.market_api.core.payment_method.service;
+
+import org.springframework.stereotype.Component;
+
+import com.example.market_api.common.base.NamedCrudAdapter;
+import com.example.market_api.core.payment_method.model.PaymentMethod;
+import com.example.market_api.core.payment_method.ports.PaymentMethodPort;
+import com.example.market_api.core.payment_method.repository.PaymentMethodRepository;
+
+@Component
+public class PaymentMethodAdapter extends NamedCrudAdapter<PaymentMethod, PaymentMethodRepository> implements PaymentMethodPort {
+    
+    public PaymentMethodAdapter(PaymentMethodRepository repository) {
+        super(repository, "Método de Pagamento");
+    }
+}

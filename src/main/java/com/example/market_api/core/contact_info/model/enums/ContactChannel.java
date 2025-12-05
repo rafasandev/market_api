@@ -1,4 +1,4 @@
-package com.example.market_api.core.profile.model.enums;
+package com.example.market_api.core.contact_info.model.enums;
 
 public enum ContactChannel {
     PHONE_CALL,

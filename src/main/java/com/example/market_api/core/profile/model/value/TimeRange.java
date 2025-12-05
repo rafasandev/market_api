@@ -1,4 +1,4 @@
-package com.example.market_api.common.types;
+package com.example.market_api.core.profile.model.value;
 
 import java.time.LocalTime;
 

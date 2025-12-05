@@ -1,34 +1,29 @@
 package com.example.market_api.core.profile.model.company;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import com.example.market_api.common.types.TimeRange;
 import com.example.market_api.core.order.model.Order;
 import com.example.market_api.core.profile.model.ProfileEntity;
 import com.example.market_api.core.profile.model.company.enums.BusinessSector;
 import com.example.market_api.core.profile.model.company.enums.PaymentMethod;
-import com.example.market_api.core.profile.model.value.ContactMethod;
+import com.example.market_api.core.profile.model.value.TimeRange;
 import com.example.market_api.core.variation_category.model.variation_seller.VariationCategorySeller;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import lombok.Builder.Default;
 
 @Entity
 @Table(name = "company_profiles")
@@ -47,27 +42,25 @@ public class CompanyProfile extends ProfileEntity {
     @Column(nullable = false)
     private BusinessSector businessSector;
 
-    @Default
-    @ElementCollection
-    @CollectionTable(name = "company_contact_methods", joinColumns = @JoinColumn(name = "company_id"))
-    private List<ContactMethod> contactMethods = new ArrayList<>();
-
-    @Default
-    @ElementCollection
-    @CollectionTable(name = "company_payment_methods", joinColumns = @JoinColumn(name = "company_id"))
-    @Column(name = "payment_method", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Set<PaymentMethod> acceptedPaymentMethods = new HashSet<>();
-
+    @Column(nullable = false)
     private List<Integer> weekDaysAvailable;
 
+    @Column(nullable = false)
     private Map<Integer, List<TimeRange>> dailyAvailableTimeRanges;
-
+    
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VariationCategorySeller> variationCategories;
-
+    
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "company_payment_methods",
+        joinColumns = @JoinColumn(name = "company_id"),
+        inverseJoinColumns = @JoinColumn(name = "payment_method_id")
+    )
+    private List<PaymentMethod> paymentMethods;
 
     public void addVariationCategory(VariationCategorySeller variationCategory) {
         if (variationCategory != null && this.variationCategories != null

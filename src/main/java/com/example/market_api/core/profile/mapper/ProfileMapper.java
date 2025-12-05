@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.example.market_api.core.profile.dto.common.ContactMethodDto;
-import com.example.market_api.core.profile.dto.common.ContactMethodForm;
+import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
+import com.example.market_api.core.contact_info.dto.ContactInfoForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileForm;
@@ -73,41 +73,41 @@ public class ProfileMapper {
         return responseDto;
     }
 
-    private List<ContactMethod> mapContactFormsToEntities(List<ContactMethodForm> forms) {
-        if (forms == null || forms.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return forms.stream()
-                .map(form -> ContactMethod.builder()
-                        .channel(form.getChannel())
-                        .value(form.getValue())
-                        .build())
-                .collect(Collectors.toList());
-    }
+    // private List<ContactMethod> mapContactFormsToEntities(List<ContactMethodForm> forms) {
+    //     if (forms == null || forms.isEmpty()) {
+    //         return new ArrayList<>();
+    //     }
+    //     return forms.stream()
+    //             .map(form -> ContactMethod.builder()
+    //                     .channel(form.getChannel())
+    //                     .value(form.getValue())
+    //                     .build())
+    //             .collect(Collectors.toList());
+    // }
 
-    private List<ContactMethodDto> mapContactEntitiesToDtos(List<ContactMethod> contactMethods) {
-        if (contactMethods == null || contactMethods.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return contactMethods.stream()
-                .map(contact -> ContactMethodDto.builder()
-                        .channel(contact.getChannel())
-                        .value(contact.getValue())
-                        .build())
-                .collect(Collectors.toList());
-    }
+    // private List<ContactMethodDto> mapContactEntitiesToDtos(List<ContactMethod> contactMethods) {
+    //     if (contactMethods == null || contactMethods.isEmpty()) {
+    //         return Collections.emptyList();
+    //     }
+    //     return contactMethods.stream()
+    //             .map(contact -> ContactMethodDto.builder()
+    //                     .channel(contact.getChannel())
+    //                     .value(contact.getValue())
+    //                     .build())
+    //             .collect(Collectors.toList());
+    // }
 
-    private Set<PaymentMethod> mapPaymentMethods(Set<PaymentMethod> methods) {
-        if (methods == null || methods.isEmpty()) {
-            return new HashSet<>();
-        }
-        return new HashSet<>(methods);
-    }
+    // private Set<PaymentMethod> mapPaymentMethods(Set<PaymentMethod> methods) {
+    //     if (methods == null || methods.isEmpty()) {
+    //         return new HashSet<>();
+    //     }
+    //     return new HashSet<>(methods);
+    // }
 
-    private Set<PaymentMethod> defaultPaymentMethods(Set<PaymentMethod> methods) {
-        if (methods == null || methods.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return Set.copyOf(methods);
-    }
+    // private Set<PaymentMethod> defaultPaymentMethods(Set<PaymentMethod> methods) {
+    //     if (methods == null || methods.isEmpty()) {
+    //         return Collections.emptySet();
+    //     }
+    //     return Set.copyOf(methods);
+    // }
 }

@@ -1,11 +1,7 @@
 package com.example.market_api.core.profile.dto.individual;
 
-import java.util.List;
-
-import com.example.market_api.core.profile.dto.common.ContactMethodForm;
 import com.example.market_api.core.user.dto.UserRegisterForm;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 
@@ -18,6 +14,6 @@ public class IndividualProfileForm extends UserRegisterForm {
     @NotEmpty(message = "O CPF deve ser informado")
     private String cpf;
 
-    @Valid
-    private List<ContactMethodForm> contactMethods;
+    // @Valid
+    // private List<ContactMethodForm> contactMethods;
 }
