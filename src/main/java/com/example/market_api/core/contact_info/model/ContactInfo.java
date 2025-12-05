@@ -1,8 +1,10 @@
 package com.example.market_api.core.contact_info.model;
 
 import com.example.market_api.common.base.AuditableEntity;
+import com.example.market_api.core.contact_type.model.ContactType;
 import com.example.market_api.core.user.model.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -20,10 +22,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class ContactInfo extends AuditableEntity {
 
+    @Column(nullable = false)
+    private String value;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "contact_method_id", nullable = false)
     private ContactType contactType;
-    
+
     @Setter
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)

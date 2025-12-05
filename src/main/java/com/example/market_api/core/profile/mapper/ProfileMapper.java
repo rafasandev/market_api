@@ -1,24 +1,13 @@
 package com.example.market_api.core.profile.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
 
-import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
-import com.example.market_api.core.contact_info.dto.ContactInfoForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileForm;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileResponseDto;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
-import com.example.market_api.core.profile.model.company.enums.PaymentMethod;
 import com.example.market_api.core.profile.model.individual.IndividualProfile;
-import com.example.market_api.core.profile.model.value.ContactMethod;
 import com.example.market_api.core.user.model.User;
 
 @Component

@@ -1,6 +1,6 @@
 package com.example.market_api.core.contact_info.dto;
 
-import com.example.market_api.core.contact_info.model.enums.ContactChannel;
+import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,9 +9,12 @@ import lombok.Getter;
 @Getter
 public class ContactInfoForm {
 
-    @NotNull(message = "O nome do canal de contato é obrigatório")
-    private ContactChannel channel;
+    @NotNull(message = "O tipos de canal de contato é obrigatório")
+    private UUID contactTypeId;
 
     @NotBlank(message = "O valor do contato é obrigatório")
     private String value;
+
+    @NotNull(message = "O usuário é obrigatório")
+    private UUID userId;
 }

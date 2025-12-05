@@ -1,9 +1,10 @@
-package com.example.market_api.core.contact_info.model;
+package com.example.market_api.core.contact_type.model;
 
 import java.util.List;
 
 import com.example.market_api.common.base.AuditableEntity;
-import com.example.market_api.core.contact_info.model.enums.ContactChannel;
+import com.example.market_api.core.contact_info.model.ContactInfo;
+import com.example.market_api.core.contact_type.model.enums.ContactChannel;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,10 +24,7 @@ import lombok.experimental.SuperBuilder;
 public class ContactType extends AuditableEntity {
     @Column(nullable = false, unique = true)
     private ContactChannel channel;
-
-    @Column(nullable = false)
-    private String value;
-
+    
     @Column(nullable = false)
     private String baseUrl;
 
