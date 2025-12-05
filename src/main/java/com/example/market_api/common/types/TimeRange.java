@@ -1,4 +1,4 @@
-package com.example.market_api.core.service_offering.model;
+package com.example.market_api.common.types;
 
 import java.time.LocalTime;
 

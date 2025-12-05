@@ -1,8 +1,14 @@
 package com.example.market_api.core.profile.dto.company;
 
+import java.util.List;
+import java.util.Set;
+
+import com.example.market_api.core.profile.dto.common.ContactMethodForm;
 import com.example.market_api.core.profile.model.company.enums.BusinessSector;
+import com.example.market_api.core.profile.model.company.enums.PaymentMethod;
 import com.example.market_api.core.user.dto.UserRegisterForm;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -19,4 +25,9 @@ public class CompanyProfileForm extends UserRegisterForm {
     // CORREÇÃO: Enum usa @NotNull, não @NotEmpty
     @NotNull(message = "O ramo de atividade deve ser informado")
     private BusinessSector businessSector;
+
+    @Valid
+    private List<ContactMethodForm> contactMethods;
+
+    private Set<PaymentMethod> acceptedPaymentMethods;
 }

@@ -1,8 +1,6 @@
 package com.example.market_api.core.service_offering.model;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -33,10 +31,6 @@ public class ServiceOffering extends AuditableMongoEntity {
     private Boolean available;
 
     private ServiceModel model;
-
-    private List<Integer> weekDaysAvailable;
-
-    private Map<Integer, List<TimeRange>> dailyTimeRanges;
 
     @Indexed
     private UUID companyId;
