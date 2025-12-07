@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "contact_types")
+@Table(name = "contact_infos")
 @SuperBuilder
 @Getter
 @NoArgsConstructor
@@ -26,7 +26,7 @@ public class ContactInfo extends AuditableEntity {
     private String value;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "contact_method_id", nullable = false)
+    @JoinColumn(name = "contact_type_id", nullable = false)
     private ContactType contactType;
 
     @Setter

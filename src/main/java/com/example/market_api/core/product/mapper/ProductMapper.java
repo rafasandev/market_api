@@ -12,16 +12,17 @@ import com.example.market_api.core.profile.model.company.CompanyProfile;
 public class ProductMapper {
 
     public Product toEntity(ProductForm productForm, Category category, CompanyProfile company) {
-        Product product = Product.builder()
-                .productName(productForm.getProductName())
-                .description(productForm.getProductDescription())
-                .basePrice(productForm.getPriceBase())
-                .stockQuantity(productForm.getStockQuantity())
+        int initialStock = productForm.getStockQuantity() != null ? productForm.getStockQuantity() : 0;
+
+        return Product.builder()
+            .productName(productForm.getProductName())
+            .description(productForm.getProductDescription())
+            .basePrice(productForm.getPriceBase())
+            .totalStockCache(initialStock)
             .locationReference(productForm.getLocationReference())
-                .categoryId(category.getId())
-                .companyId(company.getId())
-                .build();
-        return product;
+            .categoryId(category.getId())
+            .companyId(company.getId())
+            .build();
     }
 
     public ProductResponseDto toResponseDto(Product product, Category category, CompanyProfile company) {
@@ -30,7 +31,7 @@ public class ProductMapper {
                 .name(product.getProductName())
                 .description(product.getDescription())
                 .basePrice(product.getBasePrice())
-                .stockQuantity(product.getStockQuantity())
+            .stockQuantity(product.getTotalStockCache())
                 .categoryName(category.getCategoryName())
                 .companyName(company.getCompanyName())
                 .locationReference(product.getLocationReference())

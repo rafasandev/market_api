@@ -16,12 +16,6 @@ public class CompanyProfileForm extends UserRegisterForm {
     @NotEmpty(message = "O CNPJ deve ser informado")
     private String cnpj;
 
-    // CORREÇÃO: Enum usa @NotNull, não @NotEmpty
     @NotNull(message = "O ramo de atividade deve ser informado")
     private BusinessSector businessSector;
-
-    // @Valid
-    // private List<ContactMethodForm> contactMethods;
-
-    // private Set<PaymentMethod> acceptedPaymentMethods;
 }

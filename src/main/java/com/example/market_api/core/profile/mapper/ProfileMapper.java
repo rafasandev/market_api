@@ -1,7 +1,18 @@
 package com.example.market_api.core.profile.mapper;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
+import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
+import com.example.market_api.core.contact_info.model.ContactInfo;
+import com.example.market_api.core.contact_type.model.ContactType;
+import com.example.market_api.core.payment_method.dto.PaymentMethodResponseDto;
+import com.example.market_api.core.payment_method.model.PaymentMethod;
 import com.example.market_api.core.profile.dto.company.CompanyProfileForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileForm;
@@ -12,91 +23,84 @@ import com.example.market_api.core.user.model.User;
 
 @Component
 public class ProfileMapper {
-    public CompanyProfile toEntity(CompanyProfileForm profileForm, User user) {
 
-        CompanyProfile companyProfile = CompanyProfile.builder()
+    public CompanyProfile toEntity(CompanyProfileForm profileForm, User user) {
+        return CompanyProfile.builder()
                 .user(user)
                 .companyName(profileForm.getCompanyName())
                 .cnpj(profileForm.getCnpj())
                 .businessSector(profileForm.getBusinessSector())
-            .contactMethods(mapContactFormsToEntities(profileForm.getContactMethods()))
-            .acceptedPaymentMethods(mapPaymentMethods(profileForm.getAcceptedPaymentMethods()))
                 .active(true)
                 .build();
-        return companyProfile;
     }
 
     public IndividualProfile toEntity(IndividualProfileForm profileForm, User user) {
-
-        IndividualProfile individualProfile = IndividualProfile.builder()
+        return IndividualProfile.builder()
                 .user(user)
                 .name(profileForm.getName())
                 .cpf(profileForm.getCpf())
-                .contactMethods(mapContactFormsToEntities(profileForm.getContactMethods()))
                 .active(true)
                 .build();
-        return individualProfile;
     }
 
     public CompanyProfileResponseDto toResponseDto(CompanyProfile savedProfile) {
-        CompanyProfileResponseDto responseDto = CompanyProfileResponseDto.builder()
+        return CompanyProfileResponseDto.builder()
                 .id(savedProfile.getId())
                 .companyName(savedProfile.getCompanyName())
                 .cnpj(savedProfile.getCnpj())
                 .businessSector(savedProfile.getBusinessSector())
-                .contactMethods(mapContactEntitiesToDtos(savedProfile.getContactMethods()))
-                .acceptedPaymentMethods(defaultPaymentMethods(savedProfile.getAcceptedPaymentMethods()))
+                .contactMethods(mapContactInfos(savedProfile.getUser()))
+                .acceptedPaymentMethods(mapPaymentMethods(savedProfile.getPaymentMethods()))
                 .weekDaysAvailable(savedProfile.getWeekDaysAvailable())
                 .dailyAvailableTimeRanges(savedProfile.getDailyAvailableTimeRanges())
                 .build();
-        return responseDto;
     }
 
     public IndividualProfileResponseDto toResponseDto(IndividualProfile savedProfile) {
-        IndividualProfileResponseDto responseDto = IndividualProfileResponseDto.builder()
+        return IndividualProfileResponseDto.builder()
                 .id(savedProfile.getId())
                 .name(savedProfile.getName())
                 .cpf(savedProfile.getCpf())
-                .contactMethods(mapContactEntitiesToDtos(savedProfile.getContactMethods()))
+                .contactMethods(mapContactInfos(savedProfile.getUser()))
                 .build();
-        return responseDto;
     }
 
-    // private List<ContactMethod> mapContactFormsToEntities(List<ContactMethodForm> forms) {
-    //     if (forms == null || forms.isEmpty()) {
-    //         return new ArrayList<>();
-    //     }
-    //     return forms.stream()
-    //             .map(form -> ContactMethod.builder()
-    //                     .channel(form.getChannel())
-    //                     .value(form.getValue())
-    //                     .build())
-    //             .collect(Collectors.toList());
-    // }
+    private List<ContactInfoResponseDto> mapContactInfos(User user) {
+        if (user == null || user.getContacts() == null || user.getContacts().isEmpty()) {
+            return Collections.emptyList();
+        }
 
-    // private List<ContactMethodDto> mapContactEntitiesToDtos(List<ContactMethod> contactMethods) {
-    //     if (contactMethods == null || contactMethods.isEmpty()) {
-    //         return Collections.emptyList();
-    //     }
-    //     return contactMethods.stream()
-    //             .map(contact -> ContactMethodDto.builder()
-    //                     .channel(contact.getChannel())
-    //                     .value(contact.getValue())
-    //                     .build())
-    //             .collect(Collectors.toList());
-    // }
+        return user.getContacts().stream()
+            .map(this::toContactResponse)
+            .filter(Objects::nonNull)
+            .toList();
+    }
 
-    // private Set<PaymentMethod> mapPaymentMethods(Set<PaymentMethod> methods) {
-    //     if (methods == null || methods.isEmpty()) {
-    //         return new HashSet<>();
-    //     }
-    //     return new HashSet<>(methods);
-    // }
+    private ContactInfoResponseDto toContactResponse(ContactInfo contact) {
+        if (contact == null) {
+            return null;
+        }
 
-    // private Set<PaymentMethod> defaultPaymentMethods(Set<PaymentMethod> methods) {
-    //     if (methods == null || methods.isEmpty()) {
-    //         return Collections.emptySet();
-    //     }
-    //     return Set.copyOf(methods);
-    // }
+        ContactType contactType = contact.getContactType();
+        return ContactInfoResponseDto.builder()
+                .channel(contactType != null ? contactType.getChannel() : null)
+                .baseUrl(contactType != null ? contactType.getBaseUrl() : null)
+                .iconUrl(contactType != null ? contactType.getIconUrl() : null)
+                .value(contact.getValue())
+                .build();
+    }
+
+    private Set<PaymentMethodResponseDto> mapPaymentMethods(Set<PaymentMethod> paymentMethods) {
+        if (paymentMethods == null || paymentMethods.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return paymentMethods.stream()
+                .map(method -> PaymentMethodResponseDto.builder()
+                        .id(method.getId())
+                        .name(method.getName())
+                        .iconUrl(method.getIconUrl())
+                        .build())
+                .collect(Collectors.toSet());
+    }
 }

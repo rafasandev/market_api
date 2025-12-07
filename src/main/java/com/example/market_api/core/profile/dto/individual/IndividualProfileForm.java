@@ -13,7 +13,4 @@ public class IndividualProfileForm extends UserRegisterForm {
 
     @NotEmpty(message = "O CPF deve ser informado")
     private String cpf;
-
-    // @Valid
-    // private List<ContactMethodForm> contactMethods;
 }

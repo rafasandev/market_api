@@ -1,22 +1,23 @@
 package com.example.market_api.core.profile.model.company;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.example.market_api.core.order.model.Order;
 import com.example.market_api.core.payment_method.model.PaymentMethod;
 import com.example.market_api.core.profile.model.ProfileEntity;
 import com.example.market_api.core.profile.model.company.enums.BusinessSector;
-import com.example.market_api.core.profile.model.value.TimeRange;
+import com.example.market_api.core.profile.model.value.CompanyDailyAvailability;
 import com.example.market_api.core.variation_category.model.variation_seller.VariationCategorySeller;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -43,11 +44,14 @@ public class CompanyProfile extends ProfileEntity {
     @Column(nullable = false)
     private BusinessSector businessSector;
 
-    @Column(nullable = false)
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "company_available_week_days", joinColumns = @JoinColumn(name = "company_id"))
+    @Column(name = "week_day", nullable = false)
     private List<Integer> weekDaysAvailable;
 
-    @Column(nullable = false)
-    private Map<Integer, List<TimeRange>> dailyAvailableTimeRanges;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "company_daily_availability", joinColumns = @JoinColumn(name = "company_id"))
+    private List<CompanyDailyAvailability> dailyAvailableTimeRanges;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VariationCategorySeller> variationCategories;
@@ -58,6 +62,14 @@ public class CompanyProfile extends ProfileEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "company_payment_methods", joinColumns = @JoinColumn(name = "company_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
     private Set<PaymentMethod> paymentMethods;
+
+    public void setWeekDaysAvailable(List<Integer> weekDaysAvailable) {
+        this.weekDaysAvailable = weekDaysAvailable;
+    }
+
+    public void setDailyAvailableTimeRanges(List<CompanyDailyAvailability> dailyAvailableTimeRanges) {
+        this.dailyAvailableTimeRanges = dailyAvailableTimeRanges;
+    }
 
     public void addVariationCategory(VariationCategorySeller variationCategory) {
         if (variationCategory != null
