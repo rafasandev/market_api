@@ -1,5 +1,7 @@
   # Copilot Instructions - UniMarket
 
+  > ⚠️ **Governança obrigatória:** sempre que qualquer alteração estrutural atingir entidades, modelos de dados, integrações com PostgreSQL/MongoDB ou contratos entre camadas Hexagonais, atualize imediatamente este arquivo antes de concluir a tarefa/PR.
+
   ## Project Context
 
   **UniMarket** is a local e-commerce platform for a university campus. The system manages shopping carts for various vendors and autonomous entrepreneurs within the university, serving as a display window for their products and services - ranging from sweets and crafts to massage services and academic tutoring.
@@ -50,7 +52,7 @@
   **Entities migrated to MongoDB:**
 
   - **products** → main catalog document
-  - **product_variations** → stored as arrays within the product document
+  - **product_variations** → coleção independente no MongoDB; cada documento referencia o `productId` e mantém ciclo de vida próprio
   - **services** → independent documents
   - **logs and massive data:**
     - access logs
@@ -123,6 +125,13 @@
   - `CompanyProfile.dailyAvailableTimeRanges` guarda uma lista de `CompanyDailyAvailability` (dia + intervalo) em `company_daily_availability`. O `ProfileMapper` agrupa esses registros e expõe um `Map<Integer, List<TimeRange>>` no DTO.
   - O endpoint `PUT /profile/company/{id}/availability` (caso de uso `ConfigureCompanyAvailabilityUseCase`) consome `CompanyAvailabilityForm`, validando sobreposições de horários, limites 0-6 para dias da semana e exigindo intervalos para todos os dias selecionados.
   - Sempre valide a propriedade do perfil com `UserService.getLoggedInUser()` antes de aplicar qualquer mudança na disponibilidade.
+
+  #### 🔁 Post-Creation Company Configuration Flow
+
+  - **Contatos:** `PUT /profile/company/{id}/contacts` substitui todos os registros usando `CompanyContactConfigurationForm`. O `ContactInfoService` sanitiza os valores, valida com o regex do `ContactType` e regrava a coleção via `ContactInfoPort.deleteByProfileId` + `saveAll`.
+  - **Pagamentos:** `PUT /profile/company/{id}/payment-methods` aceita `CompanyPaymentMethodsForm` e usa `PaymentMethodService.getAllByIds` para garantir que 100% dos IDs existam antes de sincronizar o ManyToMany.
+  - **Disponibilidade:** `PUT /profile/company/{id}/availability` aplica `CompanyAvailabilityForm`, normaliza dias (0-6), impede sobreposições (`CompanyDailyAvailability`) e persiste via `@ElementCollection`.
+  - Todos os casos de uso validam propriedade com `UserService.getLoggedInUser()` e retornam `CompanyProfileResponseDto` atualizado através do `ProfileMapper`.
 
   #### 🧾 How Logs Are Handled in MongoDB
 
