@@ -1,4 +1,4 @@
-package com.example.market_api.core.contact_type.repository;
+package com.example.market_api.core.contact_type.repository.jpa;
 
 import java.util.UUID;
 

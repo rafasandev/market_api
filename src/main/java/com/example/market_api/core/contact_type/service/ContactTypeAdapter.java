@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.example.market_api.common.base.NamedCrudAdapter;
 import com.example.market_api.core.contact_type.model.ContactType;
 import com.example.market_api.core.contact_type.ports.ContactTypePort;
-import com.example.market_api.core.contact_type.repository.ContactTypeRepository;
+import com.example.market_api.core.contact_type.repository.jpa.ContactTypeRepository;
 
 @Component
 public class ContactTypeAdapter extends NamedCrudAdapter <ContactType, ContactTypeRepository> implements ContactTypePort {
