@@ -1,4 +1,4 @@
-package com.example.market_api.core.profile.service.company;
+package com.example.market_api.core.profile.service.company.use_case;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +10,7 @@ import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto
 import com.example.market_api.core.profile.mapper.ProfileMapper;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
 import com.example.market_api.core.profile.model.company.enums.BusinessSector;
+import com.example.market_api.core.profile.service.company.CompanyProfileService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -55,4 +55,11 @@ public class CompanyProfileService {
                             expectedSector));
         }
     }
+
+    public void validateCompanyCanBeActivated(CompanyProfile company) {
+        if (company.getWeekDaysAvailable().isEmpty() || company.getDailyAvailableTimeRanges().isEmpty()) {
+            throw new BusinessRuleException(
+                    "Configure ao menos um dia e horário de disponibilidade para ativar a empresa.");
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.market_api.core.profile.service.company;
+package com.example.market_api.core.profile.service.company.use_case;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ import com.example.market_api.core.profile.dto.company.TimeRangeForm;
 import com.example.market_api.core.profile.mapper.ProfileMapper;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
 import com.example.market_api.core.profile.model.company.value.CompanyDailyAvailability;
+import com.example.market_api.core.profile.service.company.CompanyProfileService;
 import com.example.market_api.core.user.model.User;
 import com.example.market_api.core.user.service.UserService;
 
@@ -40,12 +42,20 @@ public class ConfigureCompanyAvailabilityUseCase {
         User loggedUser = userService.getLoggedInUser();
         validateCompanyOwnership(company, loggedUser);
 
-        List<Integer> normalizedWeekDays = normalizeWeekDays(form.getWeekDaysAvailable());
-        List<CompanyDailyAvailability> availabilitySlots = buildAvailability(form.getDailyAvailability(),
-                normalizedWeekDays);
+        // Normaliza e valida os dias da semana disponíveis
+        List<Integer> validatedWeekDays = validateAvailabilityDays(form.getWeekDaysAvailable());
 
-        company.setWeekDaysAvailable(normalizedWeekDays);
+        // Constrói e valida os horários disponíveis, criando uma lista com os dias da
+        // semana e os horários associados
+        List<CompanyDailyAvailability> availabilitySlots = buildAvailabilityInfoByDay(
+                form.getDailyAvailability(),
+                validatedWeekDays);
+
+        company.setWeekDaysAvailable(validatedWeekDays);
         company.setDailyAvailableTimeRanges(availabilitySlots);
+        companyProfileService.validateCompanyCanBeActivated(company);
+        if (loggedUser.userHasContactInfoFilled())
+            loggedUser.setStatus(true);
 
         CompanyProfile saved = companyProfileService.save(company);
         return profileMapper.toResponseDto(saved);
@@ -57,76 +67,65 @@ public class ConfigureCompanyAvailabilityUseCase {
         }
     }
 
-    // Método auxiliar para normalizar e validar os dias da semana
-    private List<Integer> normalizeWeekDays(List<Integer> weekDays) {
-
-        // Se a lista estiver vazia, lança uma exceção
-        if (weekDays == null || weekDays.isEmpty()) {
+    private List<Integer> validateAvailabilityDays(List<Integer> weekDaysWithAvailability) {
+        if (weekDaysWithAvailability == null || weekDaysWithAvailability.isEmpty()) {
             throw new BusinessRuleException("Informe pelo menos um dia da semana disponível");
         }
-
-        // Remoção de valores duplicados e validação dos dias
-        return weekDays.stream()
+        return weekDaysWithAvailability.stream()
                 .map(day -> {
-                    if (day == null || day < 0 || day > 6)
-                        throw new BusinessRuleException("Os dias da semana devem estar entre 0 (domingo) e 6 (sábado)");
-
+                    if (day == null || day < 1 || day > 7)
+                        throw new BusinessRuleException("Os dias da semana devem estar entre 1 (domingo) e 7 (sábado)");
                     return day;
                 })
                 .collect(Collectors.collectingAndThen(Collectors.toCollection(LinkedHashSet::new), ArrayList::new));
     }
 
-    // Método auxiliar para construir os horários disponíveis
-    private List<CompanyDailyAvailability> buildAvailability(
+    private List<CompanyDailyAvailability> buildAvailabilityInfoByDay(
             List<CompanyDailyAvailabilityForm> dailyAvailabilityForms,
-            List<Integer> allowedDays) {
+            List<Integer> availabilityDays) {
 
-        // Validação básica da lista de formulários
         if (dailyAvailabilityForms == null || dailyAvailabilityForms.isEmpty()) {
             throw new BusinessRuleException("Informe os horários disponíveis para os dias selecionados");
         }
 
-        // Conversão da lista de dias permitidos para um conjunto para facilitar a validação
-        Set<Integer> allowedDaySet = new LinkedHashSet<>(allowedDays);
+        // Cria um hash map para os dias permitidos
+        Set<Integer> availabilityDaysHash = new LinkedHashSet<>(availabilityDays);
 
-        // Agrupamento dos formulários por dia da semana
-        Map<Integer, List<CompanyDailyAvailabilityForm>> groupedForms = dailyAvailabilityForms.stream()
+        // Agrupa os formulários por dia da semana
+        Map<Integer, List<CompanyDailyAvailabilityForm>> availabilityFormGroupByWeekday = dailyAvailabilityForms
+                .stream()
                 .collect(Collectors.groupingBy(CompanyDailyAvailabilityForm::getWeekDay));
 
-        // Verificação se todos os dias permitidos possuem formulários associados
-        if (!allowedDaySet.equals(groupedForms.keySet())) {
+        // Verificação se todos os dias permitidos possuem horários configurados
+        if (!availabilityDaysHash.equals(availabilityFormGroupByWeekday.keySet())) {
             throw new BusinessRuleException("Todos os dias informados devem possuir ao menos um intervalo configurado");
         }
 
-        // Inicialização da lista de horários disponíveis
-        List<CompanyDailyAvailability> slots = new ArrayList<>();
+        List<CompanyDailyAvailability> dailyAvailabilitySlots = new ArrayList<>();
 
-        // Construção e validação dos horários para cada dia
-        for (Map.Entry<Integer, List<CompanyDailyAvailabilityForm>> entry : groupedForms.entrySet()) {
+        for (Entry<Integer, List<CompanyDailyAvailabilityForm>> entry : availabilityFormGroupByWeekday.entrySet()) {
             Integer day = entry.getKey();
-            if (!allowedDaySet.contains(day)) {
+            if (!availabilityDaysHash.contains(day)) {
                 throw new BusinessRuleException("Dia da semana " + day + " não está na lista de dias habilitados");
             }
             // Construção dos horários para o dia atual
-            List<CompanyDailyAvailability> daySlots = entry.getValue().stream()
-                    .flatMap(form -> form.getTimeRanges().stream()
+            List<CompanyDailyAvailability> daySlots = entry
+                    .getValue()
+                    .stream()
+                    .flatMap(form -> form
+                            .getTimeRanges()
+                            .stream()
                             .map(range -> createSlot(day, range)))
                     .sorted(Comparator.comparing(CompanyDailyAvailability::getStartTime))
                     .toList();
 
-            // Validação dos horários do dia atual
             validateDaySlots(day, daySlots);
 
             // Adiciona os horários validados à lista principal
-            slots.addAll(daySlots);
-
-            // Exemplo da lista final:
-            // [CompanyDailyAvailability{weekDay=1, startTime=09:00, endTime=12:00},
-            //  CompanyDailyAvailability{weekDay=1, startTime=13:00, endTime=17:00},
-            //  CompanyDailyAvailability{weekDay=3, startTime=10:00, endTime=15:00}]
+            dailyAvailabilitySlots.addAll(daySlots);
         }
 
-        return slots;
+        return dailyAvailabilitySlots;
     }
 
     // Método auxiliar para criar um horário disponível a partir do formulário
@@ -149,13 +148,14 @@ public class ConfigureCompanyAvailabilityUseCase {
                 .build();
     }
 
-    private void validateDaySlots(Integer day, List<CompanyDailyAvailability> slots) {
-        if (slots == null || slots.isEmpty()) {
+    private void validateDaySlots(Integer day, List<CompanyDailyAvailability> dailySlots) {
+        if (dailySlots == null || dailySlots.isEmpty()) {
             throw new BusinessRuleException("Informe ao menos um horário disponível para o dia " + day);
         }
 
         CompanyDailyAvailability previous = null;
-        for (CompanyDailyAvailability current : slots) {
+        
+        for (CompanyDailyAvailability current : dailySlots) {
             if (previous != null && !current.getStartTime().isAfter(previous.getEndTime())) {
                 throw new BusinessRuleException("Os intervalos do dia " + day + " não podem se sobrepor");
             }

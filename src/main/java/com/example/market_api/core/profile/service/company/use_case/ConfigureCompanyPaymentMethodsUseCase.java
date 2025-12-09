@@ -1,4 +1,4 @@
-package com.example.market_api.core.profile.service.company;
+package com.example.market_api.core.profile.service.company.use_case;
 
 import java.util.List;
 import java.util.Set;
@@ -14,6 +14,7 @@ import com.example.market_api.core.profile.dto.company.CompanyPaymentMethodsForm
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.mapper.ProfileMapper;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
+import com.example.market_api.core.profile.service.company.CompanyProfileService;
 import com.example.market_api.core.user.model.User;
 import com.example.market_api.core.user.service.UserService;
 
@@ -29,7 +30,7 @@ public class ConfigureCompanyPaymentMethodsUseCase {
     private final ProfileMapper profileMapper;
 
     @Transactional
-    public CompanyProfileResponseDto execute(UUID companyId, CompanyPaymentMethodsForm form) {
+    public CompanyProfileResponseDto configurePaymentMethods(UUID companyId, CompanyPaymentMethodsForm form) {
         CompanyProfile company = companyProfileService.getById(companyId);
         User loggedUser = userService.getLoggedInUser();
         validateCompanyOwnership(company, loggedUser);
