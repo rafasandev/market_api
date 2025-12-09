@@ -52,7 +52,7 @@ public class AppointmentController {
     private final ListCompanyAppointmentsUseCase listCompanyAppointmentsUseCase;
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_INDIVIDUAL')")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
     @Operation(summary = "Criar novo agendamento", description = "Cliente cria um agendamento para serviço ou retirada de produto")
     public ResponseEntity<AppointmentResponseDto> createAppointment(@Valid @RequestBody AppointmentForm form) {
         AppointmentResponseDto response = registerAppointmentUseCase.registerAppointment(form);
@@ -60,7 +60,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_INDIVIDUAL', 'ROLE_COMPANY', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('INDIVIDUAL', 'COMPANY', 'ADMIN')")
     @Operation(summary = "Buscar agendamento por ID", description = "Retorna os detalhes de um agendamento específico")
     public ResponseEntity<AppointmentResponseDto> getAppointment(@PathVariable UUID id) {
         AppointmentResponseDto response = getAppointmentUseCase.getAppointment(id);
@@ -68,7 +68,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/customer")
-    @PreAuthorize("hasRole('ROLE_INDIVIDUAL')")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
     @Operation(summary = "Listar agendamentos do cliente", description = "Lista todos os agendamentos do cliente logado")
     public ResponseEntity<Page<AppointmentResponseDto>> getCustomerAppointments(
             @RequestParam(required = false) AppointmentStatus status,
@@ -78,7 +78,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/company")
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
+    @PreAuthorize("hasRole('COMPANY')")
     @Operation(summary = "Listar agendamentos da empresa", description = "Lista todos os agendamentos da empresa logada")
     public ResponseEntity<Page<AppointmentResponseDto>> getCompanyAppointments(
             @RequestParam(required = false) AppointmentStatus status,
@@ -87,7 +87,7 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_INDIVIDUAL')")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
     @Operation(summary = "Atualizar agendamento", description = "Cliente atualiza data ou observações do agendamento")
     public ResponseEntity<AppointmentResponseDto> updateAppointment(
             @PathVariable UUID id,
@@ -97,7 +97,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('ROLE_INDIVIDUAL')")
+    @PreAuthorize("hasRole('INDIVIDUAL')")
     @Operation(summary = "Cancelar agendamento", description = "Cliente cancela um agendamento")
     public ResponseEntity<AppointmentResponseDto> cancelAppointment(@PathVariable UUID id) {
         AppointmentResponseDto response = cancelAppointmentUseCase.cancelAppointment(id);
@@ -105,7 +105,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/confirm")
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
+    @PreAuthorize("hasRole('COMPANY')")
     @Operation(summary = "Confirmar agendamento", description = "Empresa confirma um agendamento pendente")
     public ResponseEntity<AppointmentResponseDto> confirmAppointment(@PathVariable UUID id) {
         AppointmentResponseDto response = confirmAppointmentUseCase.confirmAppointment(id);
@@ -113,7 +113,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/complete")
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
+    @PreAuthorize("hasRole('COMPANY')")
     @Operation(summary = "Completar agendamento", description = "Empresa marca agendamento como concluído")
     public ResponseEntity<AppointmentResponseDto> completeAppointment(@PathVariable UUID id) {
         AppointmentResponseDto response = completeAppointmentUseCase.completeAppointment(id);
