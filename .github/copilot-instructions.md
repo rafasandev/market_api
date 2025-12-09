@@ -64,7 +64,7 @@
 
   **Entities migrated to MongoDB:**
 
-  - **products** — `Product` (MongoDB document) (productName, description, basePrice, companyId, categoryId, totalStockCache, variations refs, locationReference)
+  - **products** — `Product` (MongoDB document) (productName, description, basePrice, companyId, categoryId, totalStock, variations refs, locationReference)
   - **product_variations** — `ProductVariation` (MongoDB document) (productId, variationCategoryId, value, variationAdditionalPrice, stockQuantity, available)
   - **services** — `ServiceOffering` (MongoDB document) (serviceName, description, price, durationMinutes, available, companyId)
   - **logs and massive data:**
@@ -345,7 +345,7 @@
   **Responsibility:** High-read volume, flexible schema, product catalog, logs.
   **Persistence:** `MongoRepository`.
   **Documents:**
-  - **Catalog:** `Product` (Document que referencia variações via `@DBRef(lazy = true)` e mantém `totalStockCache`), `ProductVariation` (coleção independente com `productId` como chave de vínculo)
+  - **Catalog:** `Product` (Document que referencia variações via `@DBRef(lazy = true)` e mantém `totalStock` como cache), `ProductVariation` (coleção independente com `productId` como chave de vínculo)
   - **Services:** `ServiceOffering`
   - **Audit:** `Logs`, `AccessHistory`
 
@@ -456,8 +456,8 @@
   - Uses indexed columns for performance (`cart_id`, `product_variation_id`)
 
   ### 📦 Inventory Management
-  - **Source of Truth:** MongoDB (`Product.stockQuantity`).
-  - **Reservation:** When an `Order` is created, decrement stock in MongoDB.
+  - **Source of Truth:** MongoDB (`ProductVariation.stockQuantity`). `Product.totalStock` is an aggregated cache recomputed from its variations.
+  - **Reservation:** When an `Order` is created, decrement variation stock in MongoDB (`ProductVariation.stockQuantity`) and update `Product.totalStock` accordingly.
   - **Validation:** `RegisterCartItemUseCase` must check Mongo stock availability before adding to Postgres Cart.
 
   ### 🧬 Profile Inheritance & Entity Relationships
@@ -655,7 +655,7 @@
 
   **MongoDB (Documents / NoSQL)**
   - `Product` (Mongo document)
-    - Fields: `productName`, `description`, `basePrice`, `totalStockCache`, `companyId`, `categoryId`, `variations` (DBRef list to `ProductVariation`), `locationReference`
+    - Fields: `productName`, `description`, `basePrice`, `totalStock`, `companyId`, `categoryId`, `variations` (DBRef list to `ProductVariation`), `locationReference`
 
   - `ProductVariation` (Mongo document)
     - Fields: `productId`, `variationCategoryId`, `variationCategoryType`, `valueType`, `variationValue`, `variationAdditionalPrice`, `stockQuantity`, `available`

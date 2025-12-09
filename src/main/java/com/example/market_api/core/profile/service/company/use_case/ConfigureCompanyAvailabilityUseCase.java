@@ -8,13 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.market_api.common.exception.BusinessRuleException;
+import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
+import com.example.market_api.core.contact_info.mapper.ContactInfoMapper;
+import com.example.market_api.core.contact_info.model.ContactInfo;
 import com.example.market_api.core.profile.dto.company.CompanyAvailabilityForm;
 import com.example.market_api.core.profile.dto.company.CompanyDailyAvailabilityForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
@@ -34,19 +36,19 @@ public class ConfigureCompanyAvailabilityUseCase {
 
     private final CompanyProfileService companyProfileService;
     private final UserService userService;
+
     private final ProfileMapper profileMapper;
+    private final ContactInfoMapper contactInfoMapper;
 
     @Transactional
-    public CompanyProfileResponseDto configureAvailability(UUID companyId, CompanyAvailabilityForm form) {
-        CompanyProfile company = companyProfileService.getById(companyId);
+    public CompanyProfileResponseDto configureAvailability(CompanyAvailabilityForm form) {
         User loggedUser = userService.getLoggedInUser();
-        validateCompanyOwnership(company, loggedUser);
+        CompanyProfile company = companyProfileService.getById(loggedUser.getId());
 
         // Normaliza e valida os dias da semana disponíveis
         List<Integer> validatedWeekDays = validateAvailabilityDays(form.getWeekDaysAvailable());
 
         // Constrói e valida os horários disponíveis, criando uma lista com os dias da
-        // semana e os horários associados
         List<CompanyDailyAvailability> availabilitySlots = buildAvailabilityInfoByDay(
                 form.getDailyAvailability(),
                 validatedWeekDays);
@@ -58,13 +60,10 @@ public class ConfigureCompanyAvailabilityUseCase {
             loggedUser.setStatus(true);
 
         CompanyProfile saved = companyProfileService.save(company);
-        return profileMapper.toResponseDto(saved);
-    }
 
-    private void validateCompanyOwnership(CompanyProfile company, User loggedUser) {
-        if (company == null || loggedUser == null || !company.getId().equals(loggedUser.getId())) {
-            throw new BusinessRuleException("Usuário logado não pode alterar a disponibilidade desta empresa");
-        }
+        List<ContactInfo> contactInfos = loggedUser.getContacts();
+        List<ContactInfoResponseDto> contactInfosDto = contactInfoMapper.mapContactInfos(contactInfos);
+        return profileMapper.toResponseDto(saved, contactInfosDto);
     }
 
     private List<Integer> validateAvailabilityDays(List<Integer> weekDaysWithAvailability) {

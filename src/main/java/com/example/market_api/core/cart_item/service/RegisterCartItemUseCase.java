@@ -37,13 +37,9 @@ public class RegisterCartItemUseCase {
 
     @Transactional
     public CartItemResponseDto registerCartItem(CartItemForm cartItemForm) {
-        User loggeduser = userService.getLoggedInUser();
-        IndividualProfile client = individualProfileService.getById(loggeduser.getId());
-        if (loggeduser == null || client == null || !client.getId().equals(loggeduser.getId())) {
-            throw new IllegalArgumentException("Perfil de cliente não encontrado para o usuário logado.");
-        }
+        User loggedUser = userService.getLoggedInUser();
+        IndividualProfile client = individualProfileService.getById(loggedUser.getId());
 
-        // Valida se o perfil está ativo
         individualProfileService.validateIsActive(client);
 
         Cart cart = cartService.getCartByProfileId(client.getId());
@@ -53,23 +49,25 @@ public class RegisterCartItemUseCase {
         productService.validateAvailability(product);
         productVariationService.validateAvailability(variation);
 
-        Optional<CartItem> optCart = cartItemService.getByProductVariationIdAndCartId(variation.getId(), cart.getId());
+        Optional<CartItem> optionalCartItem = cartItemService.getByProductVariationIdAndCartId(
+                variation.getId(),
+                cart.getId());
+        CartItem cartItemNewOrExistent;
 
-        CartItem newItem;
-
-        // Se o item já existe no carrinho, atualiza a quantidade
-        if (optCart.isPresent()) {
-            newItem = optCart.get();
-            int newQuantity = newItem.getItemQuantity() + cartItemForm.getItemQuantity();
+        if (optionalCartItem.isPresent()) {
+            cartItemNewOrExistent = optionalCartItem.get();
+            int newQuantity = cartItemNewOrExistent.getItemQuantity() + cartItemForm.getItemQuantity();
             validateProductAndVariationStock(product, variation, newQuantity);
-            newItem.setQuantity(newQuantity);
+            cartItemNewOrExistent.setQuantity(newQuantity);
         } else {
             validateProductAndVariationStock(product, variation, cartItemForm.getItemQuantity());
-            newItem = cartItemMapper.toEntity(cartItemForm, product, cart);
-            newItem.addQuantity(cartItemForm.getItemQuantity());
+            cartItemNewOrExistent = cartItemMapper.toEntity(cartItemForm, product, cart);
         }
-        CartItem savedItem = cartItemService.save(newItem);
-        return cartItemMapper.toResponseDto(savedItem);
+        CartItem savedItem = cartItemService.save(cartItemNewOrExistent);
+        cart.addCartItem(cartItemNewOrExistent);
+        return cartItemMapper.toResponseDto(
+                savedItem,
+                product.getBasePrice().add(variation.getVariationAdditionalPrice()));
     }
 
     private void validateProductAndVariationStock(Product product, ProductVariation variation, int requestedQuantity) {

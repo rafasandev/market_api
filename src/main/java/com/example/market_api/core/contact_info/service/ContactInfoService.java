@@ -1,10 +1,8 @@
 package com.example.market_api.core.contact_info.service;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.market_api.common.exception.BusinessRuleException;
 import com.example.market_api.core.contact_info.dto.ContactInfoForm;
@@ -25,19 +23,20 @@ public class ContactInfoService {
 	private final ContactTypeService contactTypeService;
 	private final ContactInfoMapper contactInfoMapper;
 
-	@Transactional
 	public List<ContactInfo> replaceContacts(User user, List<ContactInfoForm> contactForms) {
 		contactInfoPort.deleteByProfileId(user.getId());
 
-		if (contactForms == null || contactForms.isEmpty()) {
-			return Collections.emptyList();
-		}
-
 		List<ContactInfo> newContacts = contactForms.stream()
-				.map(form -> buildContact(user, form))
+				.map(contactForm -> buildContact(user, contactForm))
 				.toList();
 
-		return contactInfoPort.saveAll(newContacts);
+		List<ContactInfo> savedContacts = contactInfoPort.saveAll(newContacts);
+
+		for (ContactInfo contactInfo : savedContacts) {
+			user.addContact(contactInfo);
+		}
+
+		return savedContacts;
 	}
 
 	private ContactInfo buildContact(User user, ContactInfoForm contactForm) {

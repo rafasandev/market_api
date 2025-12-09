@@ -44,7 +44,7 @@ public class ProfileController {
     public ResponseEntity<IndividualProfileResponseDto> configureIndividualContacts(
             @PathVariable UUID id,
             @Valid @RequestBody ProfileContactConfigurationForm form) {
-        return ResponseEntity.ok(configureProfileContactsUseCase.configureIndividualContacts(id, form));
+        return ResponseEntity.ok(configureProfileContactsUseCase.configureIndividualContacts(form));
     }
 
     // ------------------------------------- Company Profile Endpoints ------------------------------------- //
@@ -71,25 +71,22 @@ public class ProfileController {
     @PutMapping("/company/{id}/availability")
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<CompanyProfileResponseDto> configureAvailability(
-            @PathVariable UUID id,
             @Valid @RequestBody CompanyAvailabilityForm form) {
-        CompanyProfileResponseDto responseDto = configureCompanyAvailabilityUseCase.configureAvailability(id, form);
+        CompanyProfileResponseDto responseDto = configureCompanyAvailabilityUseCase.configureAvailability(form);
         return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/company/{id}/contacts")
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<CompanyProfileResponseDto> configureCompanyContacts(
-            @PathVariable UUID id,
             @Valid @RequestBody ProfileContactConfigurationForm form) {
-        return ResponseEntity.ok(configureProfileContactsUseCase.configureCompanyContacts(id, form));
+        return ResponseEntity.ok(configureProfileContactsUseCase.configureCompanyContacts(form));
     }
 
     @PutMapping("/company/{id}/payment-methods")
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<CompanyProfileResponseDto> configurePaymentMethods(
-            @PathVariable UUID companyId,
             @Valid @RequestBody CompanyPaymentMethodsForm form) {
-        return ResponseEntity.ok(configureCompanyPaymentMethodsUseCase.configurePaymentMethods(companyId, form));
+        return ResponseEntity.ok(configureCompanyPaymentMethodsUseCase.configurePaymentMethods(form));
     }
 }

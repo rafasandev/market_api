@@ -1,21 +1,22 @@
 package com.example.market_api.core.profile.service;
 
-import java.util.UUID;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.market_api.common.exception.BusinessRuleException;
+import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
+import com.example.market_api.core.contact_info.mapper.ContactInfoMapper;
+import com.example.market_api.core.contact_info.model.ContactInfo;
+import com.example.market_api.core.contact_info.service.ContactInfoService;
 import com.example.market_api.core.profile.dto.common.ProfileContactConfigurationForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileResponseDto;
 import com.example.market_api.core.profile.mapper.ProfileMapper;
-import com.example.market_api.core.profile.model.ProfileEntity;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
 import com.example.market_api.core.profile.model.individual.IndividualProfile;
 import com.example.market_api.core.profile.service.company.CompanyProfileService;
 import com.example.market_api.core.profile.service.individual.IndividualProfileService;
-import com.example.market_api.core.contact_info.service.ContactInfoService;
 import com.example.market_api.core.user.model.User;
 import com.example.market_api.core.user.service.UserService;
 
@@ -29,37 +30,33 @@ public class ConfigureProfileContactsUseCase {
     private final IndividualProfileService individualProfileService;
     private final ContactInfoService contactInfoService;
     private final UserService userService;
+
+    private final ContactInfoMapper contactInfoMapper;
     private final ProfileMapper profileMapper;
 
     @Transactional
-    public CompanyProfileResponseDto configureCompanyContacts(UUID companyId, ProfileContactConfigurationForm form) {
-        CompanyProfile company = companyProfileService.getById(companyId);
+    public CompanyProfileResponseDto configureCompanyContacts(ProfileContactConfigurationForm form) {
         User loggedUser = userService.getLoggedInUser();
-        validateProfileOwnership(company, loggedUser);
+        CompanyProfile company = companyProfileService.getById(loggedUser.getId());
 
-        contactInfoService.replaceContacts(company.getUser(), form.getContacts());
-
-        CompanyProfile refreshedCompany = companyProfileService.getById(companyId);
-        return profileMapper.toResponseDto(refreshedCompany);
+        // Geração de novos contatos e substituição dos antigos
+        List<ContactInfo> newContacts = contactInfoService.replaceContacts(company.getUser(), form.getContacts());
+        companyProfileService.save(company);
+        
+        List<ContactInfoResponseDto> contactInfosDto = contactInfoMapper.mapContactInfos(newContacts);
+        return profileMapper.toResponseDto(company, contactInfosDto);
     }
 
     @Transactional
-    public IndividualProfileResponseDto configureIndividualContacts(UUID individualId, ProfileContactConfigurationForm form) {
-        IndividualProfile client = individualProfileService.getById(individualId);
+    public IndividualProfileResponseDto configureIndividualContacts(ProfileContactConfigurationForm form) {
         User loggedUser = userService.getLoggedInUser();
-        validateProfileOwnership(client, loggedUser);
+        IndividualProfile client = individualProfileService.getById(loggedUser.getId());
 
-        contactInfoService.replaceContacts(client.getUser(), form.getContacts());
+        // Geração de novos contatos e substituição dos antigos
+        List<ContactInfo> newContacts = contactInfoService.replaceContacts(client.getUser(), form.getContacts());
+        individualProfileService.save(client);
 
-        IndividualProfile refreshedIndividual = individualProfileService.getById(individualId);
-        if (loggedUser.userHasContactInfoFilled())
-            loggedUser.setStatus(true);
-        return profileMapper.toResponseDto(refreshedIndividual);
-    } 
-
-    private void validateProfileOwnership(ProfileEntity profile, User user) {
-        if (profile == null || user == null || !profile.getId().equals(user.getId())) {
-            throw new BusinessRuleException("Usuário logado não pode alterar os contatos desta empresa");
-        }
+        List<ContactInfoResponseDto> contactInfosDto = contactInfoMapper.mapContactInfos(newContacts);
+        return profileMapper.toResponseDto(client, contactInfosDto);
     }
 }

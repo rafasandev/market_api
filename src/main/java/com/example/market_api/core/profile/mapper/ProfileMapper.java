@@ -4,15 +4,12 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import com.example.market_api.core.contact_info.dto.ContactInfoResponseDto;
-import com.example.market_api.core.contact_info.model.ContactInfo;
-import com.example.market_api.core.contact_type.model.ContactType;
 import com.example.market_api.core.payment_method.dto.PaymentMethodResponseDto;
 import com.example.market_api.core.payment_method.model.PaymentMethod;
 import com.example.market_api.core.profile.dto.company.CompanyProfileForm;
@@ -35,6 +32,7 @@ public class ProfileMapper {
                 .cnpj(profileForm.getCnpj())
                 .balance(BigDecimal.ZERO)
                 .businessSector(profileForm.getBusinessSector())
+                .locationReference(profileForm.getLocationReference())
                 .active(false)
                 .build();
     }
@@ -48,50 +46,26 @@ public class ProfileMapper {
                 .build();
     }
 
-    public CompanyProfileResponseDto toResponseDto(CompanyProfile savedProfile) {
+    public CompanyProfileResponseDto toResponseDto(CompanyProfile savedProfile, List<ContactInfoResponseDto> contactInfos) {
         return CompanyProfileResponseDto.builder()
                 .id(savedProfile.getId())
                 .companyName(savedProfile.getCompanyName())
                 .cnpj(savedProfile.getCnpj())
+                .locationReference(savedProfile.getLocationReference())
                 .businessSector(savedProfile.getBusinessSector())
-                .contactMethods(mapContactInfos(savedProfile.getUser()))
+                .contactMethods(contactInfos)
                 .acceptedPaymentMethods(mapPaymentMethods(savedProfile.getPaymentMethods()))
                 .weekDaysAvailable(savedProfile.getWeekDaysAvailable())
                 .dailyAvailableTimeRanges(mapDailyAvailability(savedProfile.getDailyAvailableTimeRanges()))
                 .build();
     }
 
-    public IndividualProfileResponseDto toResponseDto(IndividualProfile savedProfile) {
+    public IndividualProfileResponseDto toResponseDto(IndividualProfile savedProfile, List<ContactInfoResponseDto> contactInfos) {
         return IndividualProfileResponseDto.builder()
                 .id(savedProfile.getId())
                 .name(savedProfile.getName())
                 .cpf(savedProfile.getCpf())
-                .contactMethods(mapContactInfos(savedProfile.getUser()))
-                .build();
-    }
-
-    private List<ContactInfoResponseDto> mapContactInfos(User user) {
-        if (user == null || user.getContacts() == null || user.getContacts().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return user.getContacts().stream()
-            .map(this::toContactResponse)
-            .filter(Objects::nonNull)
-            .toList();
-    }
-
-    private ContactInfoResponseDto toContactResponse(ContactInfo contact) {
-        if (contact == null) {
-            return null;
-        }
-
-        ContactType contactType = contact.getContactType();
-        return ContactInfoResponseDto.builder()
-                .channel(contactType != null ? contactType.getChannel() : null)
-                .baseUrl(contactType != null ? contactType.getBaseUrl() : null)
-                .iconUrl(contactType != null ? contactType.getIconUrl() : null)
-                .value(contact.getValue())
+                .contactMethods(contactInfos)
                 .build();
     }
 

@@ -44,6 +44,9 @@ public class CompanyProfile extends ProfileEntity {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance;
 
+    @Column(length = 255, nullable = true)
+    private String locationReference;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BusinessSector businessSector;
@@ -66,6 +69,12 @@ public class CompanyProfile extends ProfileEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "company_payment_methods", joinColumns = @JoinColumn(name = "company_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
     private Set<PaymentMethod> paymentMethods;
+
+    public boolean companyIsAbleToBeActive() {
+        return !this.weekDaysAvailable.isEmpty()
+                && !this.dailyAvailableTimeRanges.isEmpty()
+                && this.getUser().userHasContactInfoFilled();
+    }
 
     public void setWeekDaysAvailable(List<Integer> weekDaysAvailable) {
         this.weekDaysAvailable = weekDaysAvailable;

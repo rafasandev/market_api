@@ -9,6 +9,7 @@ import com.example.market_api.common.exception.BusinessRuleException;
 import com.example.market_api.core.profile.model.company.CompanyProfile;
 import com.example.market_api.core.profile.model.company.enums.BusinessSector;
 import com.example.market_api.core.profile.ports.CompanyProfilePort;
+import com.example.market_api.core.user.model.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,8 @@ public class CompanyProfileService {
     }
 
     public CompanyProfile save(CompanyProfile company) {
+        User user = company.getUser();
+        user.setStatus(company.companyIsAbleToBeActive());
         return companyProfilePort.save(company);
     }
 

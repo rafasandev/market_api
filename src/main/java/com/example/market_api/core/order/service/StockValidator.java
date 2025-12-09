@@ -22,7 +22,8 @@ public class StockValidator {
             ProductVariation variation = productVariationService.getById(item.getProductVariationId());
             if (!variation.hasStock(item.getItemQuantity())) {
                 throw new UserRuleException(
-                    String.format("Produto não possui estoque suficiente. Disponível: %d, Solicitado: %d",
+                    String.format("Produto %s não possui estoque suficiente. Disponível: %d, Solicitado: %d",
+                        item.getProductName(),
                         variation.getStockQuantity(),
                         item.getItemQuantity())
                 );

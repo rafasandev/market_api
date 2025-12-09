@@ -37,7 +37,7 @@ public class User extends AuditableEntity implements UserDetails {
     private String email;
     private String password;
     private boolean active;
-
+    
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContactInfo> contacts;
 

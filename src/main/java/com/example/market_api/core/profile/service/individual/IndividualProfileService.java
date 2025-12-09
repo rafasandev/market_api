@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.market_api.common.exception.BusinessRuleException;
 import com.example.market_api.core.profile.model.individual.IndividualProfile;
 import com.example.market_api.core.profile.ports.IndividualProfilePort;
+import com.example.market_api.core.user.model.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,8 @@ public class IndividualProfileService {
     }
 
     public IndividualProfile save(IndividualProfile profile) {
+        User user = profile.getUser();
+        user.setStatus(profile.individualIsAbleToBeActive());
         return individualProfilePort.save(profile);
     }
 

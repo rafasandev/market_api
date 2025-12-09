@@ -1,5 +1,7 @@
 package com.example.market_api.core.cart_item.mapper;
 
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Component;
 
 import com.example.market_api.core.cart.model.Cart;
@@ -25,9 +27,11 @@ public class CartItemMapper {
         return newItem;
     }
 
-    public CartItemResponseDto toResponseDto(CartItem cartItem) {
+    public CartItemResponseDto toResponseDto(CartItem cartItem, BigDecimal itemPrice) {
         CartItemResponseDto cartItemResponseDto = CartItemResponseDto.builder()
                 .productName(cartItem.getProductName())
+                .productUnitPrice(itemPrice)
+                .productQuantity(cartItem.getItemQuantity())
                 .build();
         return cartItemResponseDto;
     }

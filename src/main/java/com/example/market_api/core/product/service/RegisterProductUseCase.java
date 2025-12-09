@@ -32,8 +32,6 @@ public class RegisterProductUseCase {
     public ProductResponseDto registerProduct(ProductForm productForm) {
         User loggedInUser = userService.getLoggedInUser();
         CompanyProfile company = companyProfileService.getById(loggedInUser.getId());
-        validateUserIsCompanyOwner(loggedInUser, company);
-        
         Category category = categoryService.getById(productForm.getCategoryId());
         
         // Validações de negócio
@@ -45,12 +43,5 @@ public class RegisterProductUseCase {
         Product newProduct = productMapper.toEntity(productForm, category, company);
         Product savedProduct = productService.save(newProduct);
         return productMapper.toResponseDto(savedProduct, category, company);
-    }
-
-    private void validateUserIsCompanyOwner(User user, CompanyProfile company) {
-        if (company == null || !company.getId().equals(user.getId())) {
-            throw new com.example.market_api.common.exception.BusinessRuleException(
-                    "Usuário logado não é o proprietário da empresa associada ao produto");
-        }
     }
 }

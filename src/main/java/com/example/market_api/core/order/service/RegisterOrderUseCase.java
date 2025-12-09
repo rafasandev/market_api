@@ -8,5 +8,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterOrderUseCase {
     
-    private final OrderService orderService;
 }

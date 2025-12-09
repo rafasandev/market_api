@@ -20,13 +20,13 @@ import lombok.experimental.SuperBuilder;
 public abstract class AuditableMongoEntity {
 
     @Id
-    private UUID id;
+    protected UUID id;
 
     @CreatedDate
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     public void generateId() {
         if (this.id == null) {

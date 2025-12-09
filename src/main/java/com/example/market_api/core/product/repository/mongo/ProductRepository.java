@@ -19,7 +19,7 @@ public interface ProductRepository extends MongoRepository<Product, UUID> {
     @Query("{'productName': {$regex: ?0, $options: 'i'}}")
     List<Product> searchByName(String name);
 
-    @Query("{'available': true, 'stockQuantity': {$gt: 0}}")
+    @Query("{'totalStock': {$gt: 0}}")
     List<Product> findAvailableWithStock();
 
     boolean existsByProductName(String productName);

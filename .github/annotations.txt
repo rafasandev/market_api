@@ -41,3 +41,13 @@ ANOTAÇÕES GERAIS
         ]
 
 - Ambos perfis devem configurar ao menos um meio de contato para serem ativados
+- Depois da configuração dos perfis, o status dos usuários deve ser alterado para ATIVO
+- A verificação do status ativo/inativo é feita com um método interno no modelo do Profile (individualIsAbleToBeActive e companyIsAbleToBeActive)
+- Para evitar duplicação de código, a verificação será feita no serviço de salvamento do perfil, em IndividualProfileService e CompanyProfileService
+
+- Apenas ADMINS podem criar categorias de produtos no sistema
+- Produtos são criados com: nome, descrição, preço base, quantidade em estoque e categoria
+- Produtos não podem ser criados com variações inicialmente
+
+- O cálculo de quantidade de estoque do produto é feito de forma automática no Service dele, não sendo alterado por métodos internos
+- A quantidade é calculada com base nas quantidades individuais das variações de produto

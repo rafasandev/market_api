@@ -22,6 +22,7 @@ public class ProductService {
     }
 
     public Product save(Product product) {
+        product.recalculateTotalStock();
         return productPort.save(product);
     }
 
@@ -50,22 +51,17 @@ public class ProductService {
             throw new BusinessRuleException(
                 String.format("Estoque insuficiente para '%s'. Disponível: %d, Solicitado: %d",
                     product.getProductName(),
-                    product.getStockQuantity(),
+                    product.getTotalStock(),
                     requestedQuantity)
             );
         }
     }
 
     public void validateAvailability(Product product) {
-        if (!product.productIsAvaiable()) {
+        if (!product.isAvailable()) {
             throw new BusinessRuleException(
                 String.format("Produto '%s' não está disponível para venda", product.getProductName())
             );
         }
-    }
-
-    public void validateProductOwnership(Product product) {
-        // Implementação será adicionada quando tivermos acesso ao UserService
-        // Por enquanto, esta validação será feita no UseCase
     }
 }

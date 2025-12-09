@@ -56,12 +56,9 @@ public class CheckoutOrderUseCase {
     public List<OrderResponseDto> checkout() {
         User loggedUser = userService.getLoggedInUser();
         IndividualProfile customer = individualProfileService.getById(loggedUser.getId());
-        validateUserIsCustomer(loggedUser, customer);
-
         Cart cart = cartService.getCartByProfileId(customer.getId());
-        validateCartOwnership(cart, customer);
-        validateCartNotEmpty(cart);
 
+        validateCartNotEmpty(cart);
         stockValidator.validateStock(cart.getItems());
 
         Map<CompanyProfile, List<CartItem>> itemsBySeller = groupItemsBySeller(cart.getItems());
@@ -69,18 +66,6 @@ public class CheckoutOrderUseCase {
 
         clearCartItems(cart);
         return orderMapper.toResponseDtoList(savedOrders);
-    }
-
-    private void validateUserIsCustomer(User user, IndividualProfile customer) {
-        if (customer == null || !user.getId().equals(customer.getId())) {
-            throw new UserRuleException("Usuário logado não é o cliente do pedido");
-        }
-    }
-
-    private void validateCartOwnership(Cart cart, IndividualProfile customer) {
-        if (cart.getProfile() == null || !cart.getProfile().getId().equals(customer.getId())) {
-            throw new UserRuleException("Carrinho não pertence ao usuário atual");
-        }
     }
 
     private void validateCartNotEmpty(Cart cart) {
@@ -130,13 +115,9 @@ public class CheckoutOrderUseCase {
                     Product product = productService.getById(cartItem.getProductId());
                     ProductVariation variation = productVariationService.getById(cartItem.getProductVariationId());
 
-                    // Decrease stock on the product aggregate (embedded variation) and persist
-                    product.decreaseVariationStock(variation, cartItem.getItemQuantity());
-                    productService.save(product);
-
-                    // Also decrease and persist stock on the standalone ProductVariation document
-                    variation.setStockQuantity(variation.getStockQuantity() - cartItem.getItemQuantity());
+                    variation.decreaseVariationStock(cartItem.getItemQuantity());
                     productVariationService.save(variation);
+                    productService.save(product);
 
                     return orderItemService.createOrderItemSnapshot(cartItem, order, variation);
                 })

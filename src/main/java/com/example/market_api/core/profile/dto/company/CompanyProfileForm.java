@@ -18,4 +18,7 @@ public class CompanyProfileForm extends UserRegisterForm {
 
     @NotNull(message = "O ramo de atividade deve ser informado")
     private BusinessSector businessSector;
+
+    @NotNull(message = "Deve ser informado o local de referência de venda/serviço")
+    private String locationReference;
 }

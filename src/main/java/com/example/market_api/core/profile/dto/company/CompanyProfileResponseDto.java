@@ -19,6 +19,7 @@ public class CompanyProfileResponseDto {
     private UUID id;
     private String companyName;
     private String cnpj;
+    private String locationReference;
     private BusinessSector businessSector;
     private List<ContactInfoResponseDto> contactMethods;
     private Set<PaymentMethodResponseDto> acceptedPaymentMethods;

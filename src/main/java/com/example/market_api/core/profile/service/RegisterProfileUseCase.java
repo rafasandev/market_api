@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.market_api.core.cart.service.RegisterCartUseCase;
+import com.example.market_api.core.contact_info.mapper.ContactInfoMapper;
 import com.example.market_api.core.profile.dto.company.CompanyProfileForm;
 import com.example.market_api.core.profile.dto.company.CompanyProfileResponseDto;
 import com.example.market_api.core.profile.dto.individual.IndividualProfileForm;
@@ -32,6 +33,7 @@ public class RegisterProfileUseCase {
     private final RoleService roleService;
     private final UserService userService;
     private final ProfileMapper profileMapper;
+    private final ContactInfoMapper contactInfoMapper;
 
     private final RegisterCartUseCase registerCartUseCase;
 
@@ -44,7 +46,7 @@ public class RegisterProfileUseCase {
         IndividualProfile savedProfile = individualProfileService.save(newProfile);
         
         registerCartUseCase.createCartOnProfileCreation(savedProfile);
-        return profileMapper.toResponseDto(savedProfile);
+        return profileMapper.toResponseDto(savedProfile, contactInfoMapper.mapContactInfos(user.getContacts()));
     }
 
     @Transactional
@@ -55,6 +57,6 @@ public class RegisterProfileUseCase {
         CompanyProfile newProfile = profileMapper.toEntity(companyForm, user);
         CompanyProfile savedProfile = companyProfileService.save(newProfile);
         
-        return profileMapper.toResponseDto(savedProfile);
+        return profileMapper.toResponseDto(savedProfile, contactInfoMapper.mapContactInfos(user.getContacts()));
     }
 }
