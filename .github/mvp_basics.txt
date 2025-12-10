@@ -27,7 +27,6 @@ ADICIONAR ITEM NO CARRINHO
 VISUALIZAR CARRINHO
     - Busca do carrinho do usuário
     - Cálculo do total do carrinho
-    - Verificação em tempo real para status dos produtos (Se algum produto estiver INATIVO, deve ser removido do carrinho automaticamente [DESENVOLVIMENTO PENDENTE DE VERIFICAÇÃO])
 
 FINALIZAÇÃO DO PEDIDO
     - Separação dos itens por vendedor

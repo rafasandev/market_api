@@ -32,10 +32,7 @@ public class RegisterProductVariationUseCase {
 
     @Transactional
     public ProductVariationResponseDto registerProductVariation(ProductVariationForm variationForm) {
-        // Busca o produto
         Product product = productService.getById(variationForm.getProductId());
-        
-        // Valida ownership: usuário logado deve ser dono da empresa que possui o produto
         User loggedInUser = userService.getLoggedInUser();
         CompanyProfile company = companyProfileService.getById(loggedInUser.getId());
         
@@ -45,14 +42,12 @@ public class RegisterProductVariationUseCase {
             );
         }
 
-        // Valida categoria de variação
         VariationCategoryEntity category = variationCategoryGlobalService.getById(variationForm.getVariationCategoryId());
         variationCategoryGlobalService.verifyCategoryIsActive(category.getId());
 
         ProductVariation newVariation = productVariationMapper.toEntity(variationForm, category);
         ProductVariation savedVariation = productVariationService.save(newVariation);
         product.addVariation(savedVariation);
-        // Persist product so the embedded variation list and aggregate stock are updated
         productService.save(product);
 
         return productVariationMapper.toResponseDto(savedVariation, category, product);

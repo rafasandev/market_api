@@ -54,7 +54,7 @@ public class Order extends AuditableEntity {
     private CompanyProfile company;
 
     public void addOrderItem(OrderItem orderItem) {
-        if (orderItem != null && this.orderItems != null) {
+        if (orderItem != null && this.orderItems != null && !this.orderItems.contains(orderItem)) {
             this.orderItems.add(orderItem);
             orderItem.setOrder(this);
         }

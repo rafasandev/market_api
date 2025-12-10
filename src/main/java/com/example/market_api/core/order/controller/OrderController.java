@@ -10,9 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.market_api.core.order.dto.OrderResponseDto;
+import com.example.market_api.core.order.model.Order;
 import com.example.market_api.core.order.service.CheckoutOrderUseCase;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -28,6 +31,13 @@ public class OrderController {
     public ResponseEntity<List<OrderResponseDto>> orderChechout() {
         List<OrderResponseDto> orders = checkoutService.checkout();
         return ResponseEntity.status(HttpStatus.CREATED).body(orders);
+    }
+    
+    @PostMapping("/checkout/code")
+    public ResponseEntity<OrderResponseDto> (@RequestBody String entity) {
+        //TODO: process POST request
+        
+        return entity;
     }
     
 }

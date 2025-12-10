@@ -51,3 +51,20 @@ ANOTAÇÕES GERAIS
 
 - O cálculo de quantidade de estoque do produto é feito de forma automática no Service dele, não sendo alterado por métodos internos
 - A quantidade é calculada com base nas quantidades individuais das variações de produto
+
+- Ao requisitar o fechamento do pedido, o sistema deve:
+    - Verificar se o usuário atual logado é um comprador
+    - Buscar o carrinho do comprador
+    - Validar se o carrinho não está vazio
+    - Validar se os itens (product variations) estão disponíveis e com estoque suficiente
+    - Separa os itens por vendedor (Map <CompanyProfile, List<CartItem>>)
+    - O pedido original será repartido para vários pedidos, um para cada vendedor
+    - Para cada item do mapa, será calculado o total parcial daquele vendedor
+    - Será criado um Order para o vendedor, com o status PENDENTE e o código de confirmação único
+    - Será criado um snapshot dos itens do pedido, vinculados ao pedido
+    - O estoque dos produtos será ajustado conforme os itens do pedido
+    - O carrinho do comprador será esvaziado e atualizado
+    - Todos os dados dos itens do pedido serão persistidos nos snapshots, para evitar perda de dados futuros
+
+- 
+

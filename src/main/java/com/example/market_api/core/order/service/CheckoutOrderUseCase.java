@@ -63,7 +63,6 @@ public class CheckoutOrderUseCase {
 
         Map<CompanyProfile, List<CartItem>> itemsBySeller = groupItemsBySeller(cart.getItems());
         List<Order> savedOrders = processOrdersBySeller(cart, itemsBySeller);
-
         clearCartItems(cart);
         return orderMapper.toResponseDtoList(savedOrders);
     }
@@ -93,11 +92,11 @@ public class CheckoutOrderUseCase {
             BigDecimal orderTotal = orderCalculator.calculateOrderTotal(storeItems);
 
             Order order = Order.builder()
-                    .customer(cart.getProfile())
-                    .company(seller)
                     .pickUpcode(pickupCodeGenerator.generateUniqueCode()) // Componente dedicado (SRP)
                     .status(OrderStatus.PENDENTE)
                     .orderTotal(orderTotal)
+                    .customer(cart.getProfile())
+                    .company(seller)
                     .build();
 
             List<OrderItem> orderItems = processOrderItems(storeItems, order);
@@ -111,15 +110,14 @@ public class CheckoutOrderUseCase {
     private List<OrderItem> processOrderItems(List<CartItem> cartItems, Order order) {
         return cartItems.stream()
                 .map(cartItem -> {
-                    cartItem.reserve();
                     Product product = productService.getById(cartItem.getProductId());
                     ProductVariation variation = productVariationService.getById(cartItem.getProductVariationId());
 
                     variation.decreaseVariationStock(cartItem.getItemQuantity());
                     productVariationService.save(variation);
                     productService.save(product);
-
-                    return orderItemService.createOrderItemSnapshot(cartItem, order, variation);
+                    OrderItem orderItem = orderItemService.createOrderItemSnapshot(cartItem, order, variation);
+                    return orderItem;
                 })
                 .toList();
     }

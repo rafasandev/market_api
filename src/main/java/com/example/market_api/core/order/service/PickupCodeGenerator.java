@@ -8,10 +8,6 @@ import com.example.market_api.common.exception.UserRuleException;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Componente responsável por gerar códigos únicos de retirada.
- * Segue SRP - responsabilidade única de geração de códigos.
- */
 @Component
 @RequiredArgsConstructor
 public class PickupCodeGenerator {
@@ -23,12 +19,6 @@ public class PickupCodeGenerator {
     private final OrderService orderService;
     private final SecureRandom random = new SecureRandom();
 
-    /**
-     * Gera um código único de retirada no formato #XXXXX.
-     * 
-     * @return Código único de retirada
-     * @throws UserRuleException se não conseguir gerar código único após MAX_ATTEMPTS tentativas
-     */
     public String generateUniqueCode() {
         int attempts = 0;
         String code;

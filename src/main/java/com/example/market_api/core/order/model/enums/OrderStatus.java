@@ -2,6 +2,7 @@ package com.example.market_api.core.order.model.enums;
 
 public enum OrderStatus {
     PENDENTE, // Pedido Gerado
+    PROCESSANDO, // Pedido em processamento
     CANCELADO, // Pedido cancelado
     PAGO, // Pedido Pago
     PRONTO_RETIRADA, // Aguardando o cliente buscar
@@ -13,6 +14,7 @@ public enum OrderStatus {
 
 // Após a criação do pedido, o status inicial é PENDENTE.
 // Apenas nesse momento o cliente pode cancelar o pedido e tornar o status CANCELADO.
+// Quando o vendedor inicia o processamento do pedido, o status muda para PROCESSANDO.
 // Se o pagamento for feito de forma antecipada (PIX por exemplo), o status muda para PAGO.
 // Quando o pedido estiver pronto para ser retirado, o status muda para PRONTO_RETIRADA
 // Após a retirada pelo cliente, o status muda para COMPLETADO, sem precisar passar pelo PAGO
