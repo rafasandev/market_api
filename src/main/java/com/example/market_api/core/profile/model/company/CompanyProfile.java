@@ -119,4 +119,10 @@ public class CompanyProfile extends ProfileEntity {
             paymentMethod.removeCompanyProfile(this);
         }
     }
+
+    public void setBalance(BigDecimal balance) {
+        if (balance != null && balance.compareTo(BigDecimal.ZERO) >= 0) {
+            this.balance = balance;
+        }
+    }
 }

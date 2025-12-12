@@ -1,4 +1,4 @@
-package com.example.market_api.core.order.service;
+package com.example.market_api.core.order.service.use_case;
 
 import org.springframework.stereotype.Service;
 

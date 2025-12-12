@@ -1,10 +1,11 @@
-package com.example.market_api.core.order.service;
+package com.example.market_api.core.order.service.support;
 
 import java.security.SecureRandom;
 
 import org.springframework.stereotype.Component;
 
 import com.example.market_api.common.exception.UserRuleException;
+import com.example.market_api.core.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.example.market_api.core.order.service;
+package com.example.market_api.core.order.service.use_case;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,6 +18,10 @@ import com.example.market_api.core.order.dto.OrderResponseDto;
 import com.example.market_api.core.order.mapper.OrderMapper;
 import com.example.market_api.core.order.model.Order;
 import com.example.market_api.core.order.model.enums.OrderStatus;
+import com.example.market_api.core.order.service.OrderService;
+import com.example.market_api.core.order.service.support.OrderCalculator;
+import com.example.market_api.core.order.service.support.PickupCodeGenerator;
+import com.example.market_api.core.order.service.support.StockValidator;
 import com.example.market_api.core.order_item.model.OrderItem;
 import com.example.market_api.core.order_item.service.OrderItemService;
 import com.example.market_api.core.product.model.Product;
@@ -95,6 +99,7 @@ public class CheckoutOrderUseCase {
                     .pickUpcode(pickupCodeGenerator.generateUniqueCode()) // Componente dedicado (SRP)
                     .status(OrderStatus.PENDENTE)
                     .orderTotal(orderTotal)
+                    .isPaid(false)
                     .customer(cart.getProfile())
                     .company(seller)
                     .build();
